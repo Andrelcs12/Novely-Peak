@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+// =======================
+// ENUMS
+// =======================
+
+enum UserGoal {
+  WORK
+  STUDY
+  PROJECTS
+  LIFE
+}
+
+enum WorkStyle {
+  MINIMAL
+  BALANCED
+  STRUCTURED
+}
+
+enum DisciplineLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// =======================
+// USER
+// =======================
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  username  String?  @unique
+  avatar    String?
+
+  // onboarding (estado)
+  onboardingIntroDone   Boolean   @default(false)
+  onboardingDone        Boolean   @default(false)
+  onboardingCompletedAt DateTime? // ✅ importante
+
+  // onboarding (dados que controlam o sistema)
+  goal        UserGoal?
+  workStyle   WorkStyle?
+  discipline  DisciplineLevel?
+
+  // futuro (perfil)
+  bio        String?
+  focusLevel Int?
+
+  // relações
+  tasks Task[]
+  goals Goal[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([onboardingDone]) // 🔥 útil pra analytics e queries
+}
+
+
+// =======================
+// TASK
+// =======================
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+
+  completed   Boolean  @default(false)
+
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([completed])
+}
+
+// =======================
+// GOAL
+// =======================
+
+model Goal {
+  id          String @id @default(cuid())
+  title       String
+  description String?
+
+  progress Int @default(0) // 0-100
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
