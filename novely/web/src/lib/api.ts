@@ -1,17 +1,14 @@
 import { supabase } from "./supabase";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api";
 
 async function getToken() {
   const { data } = await supabase.auth.getSession();
   return data.session?.access_token;
 }
 
-async function request(
-  path: string,
-  options: RequestInit = {}
-) {
+async function request(path: string, options: RequestInit = {}) {
   const token = await getToken();
 
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -19,7 +16,7 @@ async function request(
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
-      ...(token && { Authorization: `Bearer ${token}` }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
 
@@ -32,9 +29,7 @@ async function request(
   }
 
   if (!res.ok) {
-    throw new Error(
-      data?.message || "Erro na API"
-    );
+    throw new Error(data?.message || "Erro na API");
   }
 
   return data;

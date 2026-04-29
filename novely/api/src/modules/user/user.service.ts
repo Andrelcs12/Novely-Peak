@@ -1,72 +1,53 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from "@nestjs/common";
-import { PrismaService } from "src/prisma.service";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CompleteOnboardingDto } from "./dto/user.dto";
+import { PrismaService } from "@/prisma.service";
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  // ✅ INTRO (primeira etapa)
+
   async completeOnboardingIntro(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
+  const user = await this.prisma.user.findUnique({
+    where: { id: userId },
+  });
 
-    if (!user) {
-      throw new NotFoundException("Usuário não encontrado");
-    }
-
-    // evita repetir
-    if (user.onboardingIntroDone) {
-      throw new BadRequestException("Onboarding intro já concluído");
-    }
-
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        onboardingIntroDone: true,
-      },
-    });
+  if (!user) {
+    throw new NotFoundException("Usuário não encontrado");
   }
 
-  // ✅ FORMULÁRIO (principal)
-  async completeOnboarding(
-    userId: string,
-    data: CompleteOnboardingDto
-  ) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
+  if (user.onboardingIntroDone) return user;
 
-    if (!user) {
-      throw new NotFoundException("Usuário não encontrado");
-    }
+  return this.prisma.user.update({
+    where: { id: userId },
+    data: { onboardingIntroDone: true },
+  });
+}
 
-    // 🔒 regra de produto (MVP)
-    if (user.onboardingDone) {
-      throw new BadRequestException("Onboarding já foi concluído");
-    }
 
-    // 🔒 regra: não pode pular intro
-    if (!user.onboardingIntroDone) {
-      throw new BadRequestException(
-        "Finalize o onboarding inicial antes"
-      );
-    }
+  async completeOnboarding(userId: string, data: CompleteOnboardingDto) {
+  const user = await this.prisma.user.findUnique({
+    where: { id: userId },
+  });
 
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        goal: data.goal,
-        workStyle: data.workStyle,
-        discipline: data.discipline,
-        onboardingDone: true,
-        onboardingCompletedAt: new Date(), // opcional mas recomendado
-      },
-    });
+  if (!user) {
+    throw new NotFoundException("Usuário não encontrado");
   }
+
+  if (user.onboardingDone) return user;
+
+  return this.prisma.user.update({
+    where: { id: userId },
+    data: {
+      goal: data.goal,
+      workStyle: data.workStyle,
+      discipline: data.discipline,
+      onboardingIntroDone: true,
+      onboardingDone: true,
+      onboardingCompletedAt: new Date(),
+    },
+  });
+}
+
+
 }

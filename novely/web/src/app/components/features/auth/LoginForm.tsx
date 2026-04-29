@@ -12,26 +12,17 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-
   const handleLogin = async () => {
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) return;
 
-  try {
-    const user = await api.get("/user/me");
+  const user = await api.get("/auth/me");
 
-    if (!user.onboardingDone) {
-      router.push("/onboarding-form");
-    } else {
-      router.push("/dashboard");
-    }
-  } catch (err) {
-    console.error(err);
-  }
+  router.push("/onboarding-form");
 };
 
   return (
@@ -63,7 +54,7 @@ export default function LoginForm() {
       {/* BUTTON */}
       <button
         onClick={handleLogin}
-        className="w-full bg-purple-800 text-white py-3 rounded-xl font-medium hover:bg-purple-900 transition"
+        className="w-full cursor-pointer bg-purple-800 text-white py-3 rounded-xl font-medium hover:bg-purple-900 transition"
       >
         Entrar
       </button>

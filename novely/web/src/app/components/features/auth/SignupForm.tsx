@@ -15,39 +15,21 @@ export default function SignupForm() {
 
 
   const handleSignup = async () => {
-  if (!email || !password) {
-    alert("Preencha email e senha");
-    return;
-  }
-
-  if (password.length < 6) {
-    alert("Senha precisa ter pelo menos 6 caracteres");
-    return;
-  }
-
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: name ? { name } : undefined, // 🔥 evita erro
+      data: name ? { name } : undefined,
     },
   });
 
-  if (error) {
-    console.error(error);
-    alert(error.message);
-    return;
-  }
+  if (error) return;
 
-  if (!data.session) {
-    router.push("/confirm-email");
-    return;
-  }
-
-  await api.patch("/user/onboarding-intro");
+  const user = await api.get("/auth/me");
 
   router.push("/onboarding-form");
 };
+
 
   return (
     <div className="space-y-4">
@@ -89,7 +71,7 @@ export default function SignupForm() {
       {/* BUTTON */}
       <button
         onClick={handleSignup}
-        className="w-full bg-purple-800 text-white py-3 rounded-xl font-medium hover:bg-purple-900 transition"
+        className="w-full cursor-pointer bg-purple-800 text-white py-3 rounded-xl font-medium hover:bg-purple-900 transition"
       >
         Criar conta
       </button>

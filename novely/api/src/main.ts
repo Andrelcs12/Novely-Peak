@@ -24,15 +24,18 @@ async function bootstrap() {
     }),
   );
 
-  // ✅ CORS SEGURO (evite origin: true em produção)
   app.enableCors({
-    origin: [
-      "http://localhost:3000",
-      "http://192.168.0.129:3000",
-    ],
-    credentials: true,
-  });
+  origin: [
+    "http://localhost:3000",
+  ],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+});
 
-  await app.listen(3000, "0.0.0.0");
+  console.log("SUPABASE_URL:", process.env.SUPABASE_URL);
+console.log("SUPABASE_KEY:", process.env.SUPABASE_ANON_KEY);
+
+  await app.listen(4000, "0.0.0.0");
 }
 bootstrap();

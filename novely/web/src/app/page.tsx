@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
+import { api } from "@/lib/api";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,41 +19,34 @@ export default function Home() {
 
       const session = sessionData.session;
 
-      // 1. não logado → onboarding/login
+      // 1. não logado
       if (!session) {
         router.push("/onboarding");
         return;
       }
 
-      // 2. logado → chama backend
-      const res = await fetch("http://localhost:3000/auth/me", {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
+      try {
+        // 2. busca user via API centralizada
+        const user = await api.get("/auth/me");
 
-      if (!res.ok) {
-        router.push("/login");
-        return;
+        // 3. onboarding não feito
+        if (!user.onboardingDone) {
+          router.push("/onboarding-form");
+          return;
+        }
+
+        // 4. tudo ok
+        router.push("/dashboard");
+      } catch (err) {
+        router.push("/auth");
       }
-
-      const user = await res.json();
-
-      // 3. onboarding não feito → onboarding form
-      if (!user.onboardingProfileDone) {
-        router.push("/onboarding-form");
-        return;
-      }
-
-      // 4. tudo ok → dashboard
-      router.push("/dashboard");
     };
 
     checkUser();
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center text-zinc-800">
       <p>Carregando...</p>
     </div>
   );

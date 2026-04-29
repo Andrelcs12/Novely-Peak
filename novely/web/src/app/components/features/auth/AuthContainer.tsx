@@ -71,13 +71,13 @@ export default function AuthContainer() {
           <SocialButtons />
 
           {/* TOGGLE */}
-          <div className="text-center text-sm text-gray-600">
+          <div className="text-center  text-sm text-gray-600">
             {mode === "login" ? (
               <p>
                 Não tem conta?{" "}
                 <button
                   onClick={() => setMode("signup")}
-                  className="text-purple-800 font-semibold"
+                  className="text-purple-800 cursor-pointer font-semibold"
                 >
                   Criar agora
                 </button>
@@ -87,7 +87,7 @@ export default function AuthContainer() {
                 Já tem conta?{" "}
                 <button
                   onClick={() => setMode("login")}
-                  className="text-purple-800 font-semibold"
+                  className="text-purple-800 cursor-pointer  font-semibold"
                 >
                   Entrar
                 </button>

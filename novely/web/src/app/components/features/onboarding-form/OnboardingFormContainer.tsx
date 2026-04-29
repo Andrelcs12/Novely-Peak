@@ -16,6 +16,7 @@ export default function OnboardingFormContainer() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+
   const [data, setData] = useState<OnboardingData>({
     goal: "",
     workStyle: "",
@@ -33,8 +34,11 @@ export default function OnboardingFormContainer() {
   ];
 
   const canContinue = () => {
-    const validations = [!!data.goal, !!data.workStyle, !!data.discipline];
-    return validations[step];
+    return (
+      (step === 0 && !!data.goal) ||
+      (step === 1 && !!data.workStyle) ||
+      (step === 2 && !!data.discipline)
+    );
   };
 
   const handleNext = () => {
@@ -44,9 +48,14 @@ export default function OnboardingFormContainer() {
 
   const handleSubmit = async () => {
     setLoading(true);
+
     try {
-      await api.patch("/user/onboarding", { ...data, onboardingDone: true });
-      router.push("/dashboard");
+      // 🔥 ÚNICO ponto de persistência
+      await api.patch("/user/onboarding", data);
+
+      router.replace("/dashboard");
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
