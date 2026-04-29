@@ -17,16 +17,21 @@ export default function AppLayout({
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    api
-      .get("/auth/me")
-      .then(setUser)
-      .catch(() => {
+    const loadUser = async () => {
+      try {
+        const data = await api.get("/auth/me");
+        setUser(data);
+      } catch {
         window.location.href = "/auth";
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
   }, []);
 
-  // 🔥 LOADING STATE (evita undefined)
+  // Loading seguro (evita crash no Sidebar/Header)
   if (loading || !user) {
     return (
       <div className="h-screen bg-zinc-950 flex items-center justify-center text-zinc-400 text-sm">
@@ -36,15 +41,17 @@ export default function AppLayout({
   }
 
   return (
-    <div className="flex h-screen bg-zinc-950 text-white">
+    <div className="flex h-screen bg-zinc-950 text-white overflow-hidden">
 
+      {/* SIDEBAR */}
       <Sidebar
         user={user}
         isOpen={open}
         onClose={() => setOpen(false)}
       />
 
-      <div className="flex flex-col flex-1">
+      {/* CONTENT */}
+      <div className="flex flex-col flex-1 min-w-0">
 
         <Header
           user={user}
