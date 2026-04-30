@@ -12,7 +12,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 // =======================
 // ENUMS
 // =======================
@@ -46,6 +45,19 @@ enum TaskStatus {
   TODO
   IN_PROGRESS
   DONE
+}
+
+enum GoalStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ABANDONED
+}
+
+enum GoalPriority {
+  LOW
+  MEDIUM
+  HIGH
 }
 
 
@@ -94,30 +106,22 @@ model Task {
   title       String
   description String?
 
-  // estado (fonte única de verdade)
-  status      TaskStatus @default(TODO)
+  status      TaskStatus   @default(TODO)
   completedAt DateTime?
 
-  // prioridade e prazo
   priority    TaskPriority @default(MEDIUM)
   dueDate     DateTime?
 
-  // produtividade (🔥 diferencial real)
   estimatedTime Int?   // minutos
   energyLevel   Int?   // 1-5
 
-  // organização
   order     Int?
   category  String?
 
-  // recorrência (🔥 retenção)
   isRecurring    Boolean @default(false)
-  recurrenceRule String? // "daily", "weekly", etc
+  recurrenceRule String?
 
-  // tracking (🔥 analytics futuro)
-  startedAt DateTime?
-
-  // sistema
+  startedAt  DateTime?
   archivedAt DateTime?
   source     String?
 
@@ -143,7 +147,26 @@ model Goal {
   title       String
   description String?
 
-  progress Int @default(0) // 0-100
+  // estado
+  status      GoalStatus   @default(ACTIVE)
+  priority    GoalPriority @default(MEDIUM)
+
+  // progresso (0–100)
+  progress    Int @default(0)
+
+  // prazo e conclusão
+  dueDate     DateTime?
+  completedAt DateTime?
+
+  // personalização visual (🔥 diferencial de engajamento)
+  color String? // hex: "#8b5cf6"
+  icon  String? // emoji: "🎯"
+
+  // organização
+  category String?
+
+  // soft delete
+  archivedAt DateTime?
 
   userId String
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -152,4 +175,7 @@ model Goal {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
 }

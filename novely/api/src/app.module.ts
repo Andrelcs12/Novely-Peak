@@ -6,6 +6,7 @@ import { UserModule } from './modules/user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { GoalsModule } from './modules/goals/goals.module';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
       ],
     }),
     
-    AuthModule, UserModule, TasksModule],
+    AuthModule, UserModule, TasksModule, GoalsModule],
   controllers: [AppController],
   providers: [AppService],
 })
