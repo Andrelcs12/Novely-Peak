@@ -9,33 +9,51 @@ import {
   Tag,
 } from "lucide-react";
 import Link from "next/link";
+import { api } from "@/lib/api";
+import { useEffect, useState } from "react";
 
 type Task = {
   id: string;
   title: string;
-  completed: boolean;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
   priority?: "LOW" | "MEDIUM" | "HIGH";
   dueDate?: string | null;
   category?: string | null;
+  completedAt?: string | null;
 };
 
 export default function DashboardTasks({
   tasks,
+  onReload,
 }: {
   tasks: Task[];
+  onReload?: () => void;
 }) {
-  const pending = tasks.filter((t) => !t.completed);
-  const completed = tasks.filter((t) => t.completed);
+  const [localTasks, setLocalTasks] = useState<Task[]>(tasks);
+  const [loadingIds, setLoadingIds] = useState<string[]>([]);
 
-  // Prioriza HIGH > MEDIUM > resto
+  // 🔥 sincroniza quando backend atualizar
+  useEffect(() => {
+    setLocalTasks(tasks);
+  }, [tasks]);
+
+  const pending = localTasks.filter((t) => t.status !== "DONE");
+  const completed = localTasks.filter((t) => t.status === "DONE");
+
   const focusTasks = [...pending]
     .sort((a, b) => {
       const order = { HIGH: 3, MEDIUM: 2, LOW: 1 };
-      return (order[b.priority ?? "LOW"] - order[a.priority ?? "LOW"]);
+      return order[b.priority ?? "LOW"] - order[a.priority ?? "LOW"];
     })
-    .slice(0, 3);
+    .slice(0, 5);
 
-  const recentCompleted = completed.slice(0, 2);
+  const recentCompleted = [...completed]
+    .sort(
+      (a, b) =>
+        new Date(b.completedAt || 0).getTime() -
+        new Date(a.completedAt || 0).getTime()
+    )
+    .slice(0, 2);
 
   const getPriorityColor = (priority?: string) => {
     if (priority === "HIGH") return "text-red-400";
@@ -45,23 +63,60 @@ export default function DashboardTasks({
 
   const formatDate = (date?: string | null) => {
     if (!date) return null;
-    const d = new Date(date);
-    return d.toLocaleDateString("pt-BR", {
+    return new Date(date).toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
     });
   };
 
-  if (!tasks.length) {
+  const getStatusLabel = (status: string) => {
+    if (status === "IN_PROGRESS") return "Em execução";
+    if (status === "DONE") return "Concluído";
+    return "Fazer";
+  };
+
+  // 🔥 AQUI ESTÁ A MÁGICA (optimistic update)
+  const handleComplete = async (id: string) => {
+    // 1. UI atualiza INSTANTE
+    setLocalTasks((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? {
+              ...t,
+              status: "DONE",
+              completedAt: new Date().toISOString(),
+            }
+          : t
+      )
+    );
+
+    try {
+      setLoadingIds((prev) => [...prev, id]);
+
+      // 2. backend roda depois
+      await api.patch(`/tasks/${id}/status`, {
+        status: "DONE",
+      });
+
+      onReload?.(); // opcional
+    } catch (err) {
+      console.error(err);
+
+      // fallback: recarrega estado real
+      onReload?.();
+    } finally {
+      setLoadingIds((prev) => prev.filter((i) => i !== id));
+    }
+  };
+
+  if (!localTasks.length) {
     return (
       <div className="p-6 rounded-2xl border border-zinc-800 bg-gradient-to-b from-zinc-900 to-zinc-950 text-sm text-zinc-400">
         <div className="mb-2 text-white font-medium">
           Nenhuma tarefa ainda
         </div>
 
-        <div>
-          Crie sua primeira tarefa e comece a executar.
-        </div>
+        <div>Crie sua primeira tarefa e comece a executar.</div>
 
         <Link
           href="/tasks"
@@ -79,9 +134,7 @@ export default function DashboardTasks({
       {/* HEADER */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-sm text-zinc-400">
-            Foco do dia
-          </div>
+          <div className="text-sm text-zinc-400">Foco do dia</div>
 
           <div className="text-lg font-semibold text-white">
             Execute o essencial
@@ -100,7 +153,7 @@ export default function DashboardTasks({
         </Link>
       </div>
 
-      {/* FOCUS TASKS */}
+      {/* FOCUS */}
       <div className="space-y-2">
         <div className="text-xs text-zinc-500 uppercase tracking-wide">
           Em execução agora
@@ -111,55 +164,61 @@ export default function DashboardTasks({
             Tudo concluído. Mantenha consistência.
           </div>
         ) : (
-          focusTasks.map((task) => (
-            <div
-              key={task.id}
-              className="flex items-center justify-between text-sm px-3 py-3 rounded-xl bg-zinc-800/40 hover:bg-zinc-800/70 transition group"
-            >
-              {/* LEFT */}
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <Circle
-                    size={16}
-                    className="text-zinc-500 group-hover:text-purple-400 transition"
-                  />
+          focusTasks.map((task) => {
+            const isLoading = loadingIds.includes(task.id);
 
-                  <span className="text-zinc-200 group-hover:text-white transition">
-                    {task.title}
-                  </span>
+            return (
+              <div
+                key={task.id}
+                className="flex items-center justify-between text-sm px-3 py-3 rounded-xl bg-zinc-800/40 hover:bg-zinc-800/70 transition"
+              >
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleComplete(task.id)}
+                      disabled={isLoading}
+                    >
+                      <Circle
+                        size={16}
+                        className="text-zinc-500 hover:text-green-400"
+                      />
+                    </button>
+
+                    <span className="text-zinc-200">
+                      {task.title}
+                    </span>
+                  </div>
+
+                  <div className="flex gap-3 text-xs text-zinc-500">
+                    {task.priority && (
+                      <span className={`flex gap-1 ${getPriorityColor(task.priority)}`}>
+                        <Flame size={12} />
+                        {task.priority}
+                      </span>
+                    )}
+
+                    {task.dueDate && (
+                      <span className="flex gap-1">
+                        <Calendar size={12} />
+                        {formatDate(task.dueDate)}
+                      </span>
+                    )}
+
+                    {task.category && (
+                      <span className="flex gap-1">
+                        <Tag size={12} />
+                        {task.category}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                {/* META INFO */}
-                <div className="flex items-center gap-3 text-xs text-zinc-500">
-                  {task.priority && (
-                    <span className={`flex items-center gap-1 ${getPriorityColor(task.priority)}`}>
-                      <Flame size={12} />
-                      {task.priority}
-                    </span>
-                  )}
-
-                  {task.dueDate && (
-                    <span className="flex items-center gap-1">
-                      <Calendar size={12} />
-                      {formatDate(task.dueDate)}
-                    </span>
-                  )}
-
-                  {task.category && (
-                    <span className="flex items-center gap-1">
-                      <Tag size={12} />
-                      {task.category}
-                    </span>
-                  )}
-                </div>
+                <span className="text-xs text-yellow-400">
+                  {isLoading ? "..." : getStatusLabel(task.status)}
+                </span>
               </div>
-
-              {/* STATUS */}
-              <span className="text-xs text-yellow-400 opacity-70 group-hover:opacity-100">
-                Fazer
-              </span>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -184,7 +243,9 @@ export default function DashboardTasks({
               </div>
 
               <span className="text-xs text-green-400">
-                OK
+                {task.completedAt
+                  ? `Hoje • ${formatDate(task.completedAt)}`
+                  : "Concluído"}
               </span>
             </div>
           ))}

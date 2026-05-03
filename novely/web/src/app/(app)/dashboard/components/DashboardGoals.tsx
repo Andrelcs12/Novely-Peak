@@ -3,9 +3,10 @@
 import { Target, ArrowRight, CheckCircle2, Circle } from "lucide-react";
 import Link from "next/link";
 
+// 🔥 PADRÃO UNIFICADO (igual backend)
 type Task = {
   id: string;
-  completed: boolean;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
 };
 
 type Goal = {
@@ -70,7 +71,10 @@ export default function DashboardGoals({
       <div className="space-y-4">
         {activeGoals.map((goal) => {
           const total = goal.tasks.length;
-          const done = goal.tasks.filter((t) => t.completed).length;
+
+          const done = goal.tasks.filter(
+            (t) => t.status === "DONE"
+          ).length;
 
           const realProgress = total
             ? Math.round((done / total) * 100)
@@ -123,7 +127,6 @@ export default function DashboardGoals({
 
                 </div>
 
-                {/* CTA */}
                 <Link
                   href={`/goals`}
                   className="text-purple-400 hover:text-purple-300 flex items-center gap-1"

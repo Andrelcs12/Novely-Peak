@@ -42,19 +42,6 @@ export class TasksController {
     return this.tasksService.create(req.user.id, dto);
   }
 
-  @Patch('/tasks/:taskId/status')
-updateTaskStatus(
-  @Param('taskId') taskId: string,
-  @Req() req: any,
-  @Body('status') status: 'TODO' | 'IN_PROGRESS' | 'DONE',
-) {
-  return this.goalsService.updateTaskStatus(
-    taskId,
-    req.user.id,
-    status,
-  );
-}
-
   @Patch(':id')
   update(
     @Param('id') id: string,

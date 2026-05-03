@@ -1,0 +1,5 @@
+export enum StreakEventType {
+  STREAK_UP = "STREAK_UP",
+  STREAK_WARNING = "STREAK_WARNING",
+  STREAK_BROKEN = "STREAK_BROKEN",
+}

@@ -12,7 +12,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 // =======================
 // ENUMS
 // =======================
@@ -78,25 +77,31 @@ enum GoalProgressMode {
 // =======================
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  username  String?  @unique
-  avatar    String?
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String?
+  username String? @unique
+  avatar   String?
 
   onboardingIntroDone   Boolean   @default(false)
   onboardingDone        Boolean   @default(false)
   onboardingCompletedAt DateTime?
 
-  goal        UserGoal?
-  workStyle   WorkStyle?
-  discipline  DisciplineLevel?
+  goal       UserGoal?
+  workStyle  WorkStyle?
+  discipline DisciplineLevel?
 
   bio        String?
   focusLevel Int?
 
   tasks Task[]
   goals Goal[]
+
+  // 🔥 STREAK RELATION (1–1)
+  streak Streak?
+
+  // 🔥 STREAK HISTORY (1–N)
+  streakHistory StreakHistory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -105,25 +110,68 @@ model User {
   @@index([onboardingDone])
 }
 
+enum StreakStatus {
+  ACTIVE
+  BROKEN
+  FROZEN
+}
+
+model Streak {
+  id String @id @default(cuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  current Int @default(0)
+  best    Int @default(0)
+
+  status StreakStatus @default(ACTIVE)
+
+  lastUpdatedAt   DateTime?
+  lastCompletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model StreakHistory {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date DateTime
+
+  progress Int
+  status   String
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date]) // 🔥 evita duplicar dia
+  @@index([userId, date])
+}
+
 // =======================
 // GOAL
 // =======================
 
 model Goal {
-  id          String @id @default(cuid())
+  id String @id @default(cuid())
 
   title       String
   description String?
 
-  status      GoalStatus   @default(ACTIVE)
-  priority    GoalPriority @default(MEDIUM)
+  status   GoalStatus   @default(ACTIVE)
+  priority GoalPriority @default(MEDIUM)
 
   // =======================
   // PROGRESSO
   // =======================
-  progress        Int @default(0)
-  targetProgress  Int @default(100)
-  progressMode    GoalProgressMode @default(MANUAL)
+  progress       Int              @default(0)
+  targetProgress Int              @default(100)
+  progressMode   GoalProgressMode @default(MANUAL)
 
   // =======================
   // INTELIGÊNCIA
@@ -135,16 +183,16 @@ model Goal {
   // =======================
   // CONTEXTO TEMPORAL
   // =======================
-  dueDate     DateTime?
-  startedAt   DateTime?
-  completedAt DateTime?
+  dueDate          DateTime?
+  startedAt        DateTime?
+  completedAt      DateTime?
   lastCalculatedAt DateTime?
 
   // =======================
   // CONTEXTO VISUAL
   // =======================
-  color String?
-  icon  String?
+  color    String?
+  icon     String?
   category String?
 
   // =======================
@@ -160,7 +208,7 @@ model Goal {
   archivedAt DateTime?
 
   userId String
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   tasks Task[]
 
@@ -179,13 +227,13 @@ model Goal {
 // =======================
 
 model Task {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
 
   title       String
   description String?
 
-  status      TaskStatus   @default(TODO)
-  priority    TaskPriority @default(MEDIUM)
+  status   TaskStatus   @default(TODO)
+  priority TaskPriority @default(MEDIUM)
 
   dueDate     DateTime?
   completedAt DateTime?
@@ -221,10 +269,10 @@ model Task {
   weight Int @default(1)
 
   userId String
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   goalId String?
-  goal   Goal? @relation(fields: [goalId], references: [id], onDelete: SetNull)
+  goal   Goal?   @relation(fields: [goalId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
