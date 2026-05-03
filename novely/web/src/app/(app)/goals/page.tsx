@@ -3,13 +3,16 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { api } from "@/lib/api";
 
-import { Goal } from "@/app/types/goal";
+import { Goal, GoalPriorityFilter, GoalStatusFilter } from "@/app/types/goal";
+
 import GoalsHeader from "./components/GoalsHeader";
 import GoalsStats from "./components/GoalsStats";
 import GoalsList from "./components/GoalsList";
+import GoalsFilter from "./components/GoalsFilter";
+import GoalsAnalytics from "./components/GoalsAnalytics";
 import GoalModal from "./components/GoalsModal";
-
-type Filter = "ALL" | "ACTIVE" | "COMPLETED" | "PAUSED";
+import GoalsHelpModal from "./components/GoalsHelpModal";
+import GoalExpanded from "./components/GoalDetailPanel";
 
 export default function GoalsPage() {
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -18,17 +21,22 @@ export default function GoalsPage() {
   const [open, setOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
 
-  const [filter, setFilter] = useState<Filter>("ALL");
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [expandedGoal, setExpandedGoal] = useState<Goal | null>(null);
 
-  // =====================
-  // LOAD
-  // =====================
+  // FILTERS
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<GoalStatusFilter>("ALL");
+  const [priority, setPriority] = useState<GoalPriorityFilter>("ALL");
+
   const loadGoals = useCallback(async () => {
+    setLoading(true);
     try {
       const data = await api.get("/goals");
-      setGoals(data);
+      setGoals(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Erro ao carregar metas:", err);
+      console.error(err);
+      setGoals([]);
     } finally {
       setLoading(false);
     }
@@ -38,51 +46,73 @@ export default function GoalsPage() {
     loadGoals();
   }, [loadGoals]);
 
-  // =====================
-  // FILTERS
-  // =====================
+  // FILTER ENGINE
   const filteredGoals = useMemo(() => {
-    return goals.filter((g) => {
-      if (filter === "ACTIVE") return g.status === "ACTIVE";
-      if (filter === "COMPLETED") return g.status === "COMPLETED";
-      if (filter === "PAUSED") return g.status === "PAUSED";
-      return true;
-    });
-  }, [goals, filter]);
+    return goals
+      .filter((g) => {
+        const matchSearch = g.title
+          .toLowerCase()
+          .includes(search.toLowerCase());
 
-  // =====================
-  // PROGRESS — optimistic
-  // =====================
-  const handleProgressChange = async (goal: Goal, progress: number) => {
-    setGoals((prev) =>
-      prev.map((g) => (g.id === goal.id ? { ...g, progress } : g))
-    );
+        const matchStatus = status === "ALL" || g.status === status;
+        const matchPriority = priority === "ALL" || g.priority === priority;
 
+        return matchSearch && matchStatus && matchPriority;
+      })
+      .sort((a, b) => {
+        const riskOrder: Record<string, number> = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+        const aRisk = a.riskLevel ?? "LOW";
+        const bRisk = b.riskLevel ?? "LOW";
+
+        if (aRisk !== bRisk) {
+          return (riskOrder[aRisk] ?? 2) - (riskOrder[bRisk] ?? 2);
+        }
+
+        return b.progress - a.progress;
+      });
+  }, [goals, search, status, priority]);
+
+  // ACTIONS
+  const handleEdit = (goal: Goal) => {
+    setSelectedGoal(goal);
+    setOpen(true);
+  };
+
+  const handleDelete = async (goal: Goal) => {
+    setGoals((prev) => prev.filter((g) => g.id !== goal.id));
     try {
-      await api.patch(`/goals/${goal.id}/progress`, { progress });
-      // Se o backend auto-completou (progress === 100), sincroniza
-      if (progress === 100) {
-        setGoals((prev) =>
-          prev.map((g) =>
-            g.id === goal.id ? { ...g, status: "COMPLETED" } : g
-          )
-        );
-      }
-    } catch (err) {
-      console.error("Erro ao atualizar progresso:", err);
-      // Reverte
-      setGoals((prev) =>
-        prev.map((g) => (g.id === goal.id ? { ...g, progress: goal.progress } : g))
-      );
+      await api.delete(`/goals/${goal.id}`);
+    } catch {
+      setGoals((prev) => [...prev, goal]);
     }
   };
 
-  // =====================
-  // STATUS TOGGLE — optimistic
-  // =====================
-  const handleStatusToggle = async (goal: Goal) => {
+  const handleToggleTask = async (task: any) => {
+  const nextStatus =
+    task.status === "DONE"
+      ? "TODO"
+      : task.status === "TODO"
+      ? "IN_PROGRESS"
+      : "DONE";
+
+  try {
+    await api.patch(`/tasks/${task.id}/status`, {
+      status: nextStatus,
+    });
+
+    // 🔥 recalcula progresso da meta
+    await api.post(`/goals/${task.goalId}/recalc`);
+
+    // 🔥 recarrega tudo (simples e seguro)
+    await loadGoals();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+  const handleToggleComplete = async (goal: Goal) => {
     const newStatus: Goal["status"] =
-      goal.status === "ACTIVE" ? "PAUSED" : "ACTIVE";
+      goal.status === "COMPLETED" ? "ACTIVE" : "COMPLETED";
 
     setGoals((prev) =>
       prev.map((g) => (g.id === goal.id ? { ...g, status: newStatus } : g))
@@ -90,89 +120,98 @@ export default function GoalsPage() {
 
     try {
       await api.patch(`/goals/${goal.id}/status`, { status: newStatus });
-    } catch (err) {
-      console.error("Erro ao atualizar status:", err);
+    } catch {
       setGoals((prev) =>
         prev.map((g) => (g.id === goal.id ? { ...g, status: goal.status } : g))
       );
     }
   };
 
-  // =====================
-  // DELETE — optimistic
-  // =====================
-  const handleDelete = async (goal: Goal) => {
-    setGoals((prev) => prev.filter((g) => g.id !== goal.id));
-
+  const handleProgressChange = async (goal: Goal, progress: number) => {
+    setGoals((prev) =>
+      prev.map((g) => (g.id === goal.id ? { ...g, progress } : g))
+    );
     try {
-      await api.delete(`/goals/${goal.id}`);
-    } catch (err) {
-      console.error("Erro ao excluir meta:", err);
-      setGoals((prev) => [...prev, goal]);
+      await api.patch(`/goals/${goal.id}/progress`, { progress });
+    } catch {
+      setGoals((prev) =>
+        prev.map((g) => (g.id === goal.id ? { ...g, progress: goal.progress } : g))
+      );
     }
   };
 
-  // =====================
-  // EDIT
-  // =====================
-  const handleEdit = (goal: Goal) => {
-    setSelectedGoal(goal);
-    setOpen(true);
+  const handleOpenGoal = (goal: Goal) => {
+    setExpandedGoal(goal);
   };
 
-  // =====================
-  // MODAL
-  // =====================
   const handleClose = () => {
     setOpen(false);
-    setTimeout(() => setSelectedGoal(null), 300);
+    setTimeout(() => setSelectedGoal(null), 200);
   };
 
-  const handleSaved = () => {
-    loadGoals();
-  };
+  
 
-  // =====================
-  // LOADING
-  // =====================
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-zinc-400 text-sm py-8">
+      <div className="flex items-center gap-2 text-zinc-400 text-sm py-10">
         <span className="animate-pulse">●</span>
         Carregando metas...
       </div>
     );
   }
 
-  return (
-    <div className="space-y-6 text-white">
 
+  return (
+    <div className="space-y-6 text-white max-w-6xl mx-auto">
+ 
+      {/* 1. HEADER — ação principal */}
       <GoalsHeader
         onCreate={() => {
           setSelectedGoal(null);
           setOpen(true);
         }}
-        filter={filter}
-        setFilter={setFilter}
+        onOpenHelp={() => setHelpOpen(true)}
       />
-
+ 
       <GoalsStats goals={goals} />
+ 
+      <GoalsAnalytics goals={goals} />
+
+      <GoalsFilter
+        search={search}
+        setSearch={setSearch}
+        status={status}
+        setStatus={setStatus}
+        priority={priority}
+        setPriority={setPriority}
+      />
 
       <GoalsList
-        goals={filteredGoals}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onProgressChange={handleProgressChange}
-        onToggleComplete={handleStatusToggle}
-      />
-
+  goals={filteredGoals}
+  onEdit={handleEdit}
+  onDelete={handleDelete}
+  onToggleComplete={handleToggleComplete}
+  onOpen={handleOpenGoal}
+/>
+ 
+      {/* MODALS */}
       <GoalModal
         open={open}
         onClose={handleClose}
-        onSaved={handleSaved}
+        onSaved={loadGoals}
         goal={selectedGoal}
       />
-
+ 
+      <GoalsHelpModal
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
+ 
+      <GoalExpanded
+  goal={expandedGoal}
+  onClose={() => setExpandedGoal(null)}
+  onToggleTask={handleToggleTask}
+/>
     </div>
   );
 }

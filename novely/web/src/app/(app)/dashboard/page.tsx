@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 
 import DashboardKPIs from "./components/DashboardKPIs";
 import DashboardTasks from "./components/DashboardTasks";
+import DashboardGoals from "./components/DashboardGoals";
 import DashboardInsight from "./components/DashboardInsight";
 
 type Task = {
@@ -13,23 +14,27 @@ type Task = {
   completed: boolean;
 };
 
+type Goal = {
+  id: string;
+  title: string;
+  progress: number;
+  tasks: Task[];
+};
+
 export default function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [goals, setGoals] = useState<any[]>([]);
-  const [user, setUser] = useState<any>(null);
+  const [goals, setGoals] = useState<Goal[]>([]);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [tasksRes, goalsRes, userRes] = await Promise.all([
+        const [tasksRes, goalsRes] = await Promise.all([
           api.get("/tasks"),
           api.get("/goals"),
-          api.get("/auth/me"),
         ]);
 
         setTasks(tasksRes);
         setGoals(goalsRes);
-        setUser(userRes);
       } catch (err) {
         console.error(err);
       }
@@ -49,13 +54,22 @@ export default function DashboardPage() {
 
       <DashboardKPIs
         tasks={tasks.length}
+        completedTasks={completedTasks}
         goals={goals.length}
         productivity={productivity}
       />
 
-      <DashboardTasks tasks={tasks} />
+      <DashboardInsight
+        tasks={tasks.length}
+        completedTasks={completedTasks}
+        productivity={productivity}
+      />
 
-      {user && <DashboardInsight user={user} />}
+      {/* GRID PRINCIPAL */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <DashboardTasks tasks={tasks} />
+        <DashboardGoals goals={goals} />
+      </div>
 
     </div>
   );

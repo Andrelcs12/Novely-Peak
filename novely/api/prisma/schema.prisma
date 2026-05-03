@@ -12,6 +12,7 @@ datasource db {
   provider = "postgresql"
 }
 
+
 // =======================
 // ENUMS
 // =======================
@@ -60,6 +61,17 @@ enum GoalPriority {
   HIGH
 }
 
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum GoalProgressMode {
+  MANUAL
+  TASKS
+  HYBRID
+}
 
 // =======================
 // USER
@@ -72,7 +84,6 @@ model User {
   username  String?  @unique
   avatar    String?
 
-  // onboarding
   onboardingIntroDone   Boolean   @default(false)
   onboardingDone        Boolean   @default(false)
   onboardingCompletedAt DateTime?
@@ -81,11 +92,9 @@ model User {
   workStyle   WorkStyle?
   discipline  DisciplineLevel?
 
-  // perfil futuro
   bio        String?
   focusLevel Int?
 
-  // relações
   tasks Task[]
   goals Goal[]
 
@@ -96,6 +105,74 @@ model User {
   @@index([onboardingDone])
 }
 
+// =======================
+// GOAL
+// =======================
+
+model Goal {
+  id          String @id @default(cuid())
+
+  title       String
+  description String?
+
+  status      GoalStatus   @default(ACTIVE)
+  priority    GoalPriority @default(MEDIUM)
+
+  // =======================
+  // PROGRESSO
+  // =======================
+  progress        Int @default(0)
+  targetProgress  Int @default(100)
+  progressMode    GoalProgressMode @default(MANUAL)
+
+  // =======================
+  // INTELIGÊNCIA
+  // =======================
+  score       Int? // 0–100 (performance geral)
+  healthScore Int? // qualidade da execução
+  riskLevel   RiskLevel?
+
+  // =======================
+  // CONTEXTO TEMPORAL
+  // =======================
+  dueDate     DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+  lastCalculatedAt DateTime?
+
+  // =======================
+  // CONTEXTO VISUAL
+  // =======================
+  color String?
+  icon  String?
+  category String?
+
+  // =======================
+  // MOTIVAÇÃO
+  // =======================
+  why String?
+
+  // =======================
+  // FUTURO (PROJECTS / COLLAB)
+  // =======================
+  projectId String?
+
+  archivedAt DateTime?
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tasks Task[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([status, userId])
+}
 
 // =======================
 // TASK
@@ -103,79 +180,59 @@ model User {
 
 model Task {
   id          String   @id @default(cuid())
+
   title       String
   description String?
 
   status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+
+  dueDate     DateTime?
   completedAt DateTime?
 
-  priority    TaskPriority @default(MEDIUM)
-  dueDate     DateTime?
+  // =======================
+  // EXECUÇÃO REAL
+  // =======================
+  estimatedTime Int?
+  actualTime    Int?
+  focusTime     Int?
+  energyLevel   Int?
 
-  estimatedTime Int?   // minutos
-  energyLevel   Int?   // 1-5
+  // =======================
+  // UI / ORGANIZAÇÃO
+  // =======================
+  position Int?
+  category String?
 
-  order     Int?
-  category  String?
-
+  // =======================
+  // RECORRÊNCIA
+  // =======================
   isRecurring    Boolean @default(false)
   recurrenceRule String?
 
   startedAt  DateTime?
   archivedAt DateTime?
-  source     String?
+
+  source String?
+
+  // =======================
+  // IMPACTO NA META
+  // =======================
+  weight Int @default(1)
 
   userId String
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  goalId String?
+  goal   Goal? @relation(fields: [goalId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@index([goalId])
   @@index([status])
   @@index([priority])
   @@index([dueDate])
-}
-
-
-// =======================
-// GOAL
-// =======================
-
-model Goal {
-  id          String @id @default(cuid())
-  title       String
-  description String?
-
-  // estado
-  status      GoalStatus   @default(ACTIVE)
-  priority    GoalPriority @default(MEDIUM)
-
-  // progresso (0–100)
-  progress    Int @default(0)
-
-  // prazo e conclusão
-  dueDate     DateTime?
-  completedAt DateTime?
-
-  // personalização visual (🔥 diferencial de engajamento)
-  color String? // hex: "#8b5cf6"
-  icon  String? // emoji: "🎯"
-
-  // organização
-  category String?
-
-  // soft delete
-  archivedAt DateTime?
-
-  userId String
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@index([status])
-  @@index([priority])
-  @@index([dueDate])
+  @@index([goalId, status])
 }

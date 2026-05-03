@@ -1,12 +1,11 @@
-// modules/goals/goals.module.ts
-
 import { Module } from '@nestjs/common';
-import { GoalsController } from './goals.controller';
 import { GoalsService } from './goals.service';
+import { GoalsController } from './goals.controller';
 import { PrismaService } from '@/prisma.service';
 
 @Module({
   controllers: [GoalsController],
   providers: [GoalsService, PrismaService],
+  exports: [GoalsService], // 🔥 ESSENCIAL
 })
 export class GoalsModule {}

@@ -1,42 +1,132 @@
 "use client";
 
-import { User } from "@/app/types/user";
+import {
+  AlertTriangle,
+  Flame,
+  CheckCircle2,
+  TrendingUp,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+
+type Props = {
+  tasks: number;
+  completedTasks: number;
+  productivity: number;
+};
 
 export default function DashboardInsight({
-  user,
-}: {
-  user: User;
-}) {
+  tasks,
+  completedTasks,
+  productivity,
+}: Props) {
+  const router = useRouter();
+
   const getInsight = () => {
-    if (!user) return "Carregando...";
-
-    if (user.discipline === "LOW") {
-      return "Comece com tarefas pequenas e consistentes.";
+    if (tasks === 0) {
+      return {
+        icon: AlertTriangle,
+        color: "text-yellow-400",
+        bg: "bg-yellow-500/10",
+        border: "border-yellow-500/30",
+        title: "Sem execução iniciada",
+        message: "Defina uma tarefa simples e execute agora.",
+        action: "Criar tarefa",
+      };
     }
 
-    if (user.workStyle === "MINIMAL") {
-      return "Menos tarefas, mais foco. Evite sobrecarga.";
+    if (productivity === 0) {
+      return {
+        icon: Flame,
+        color: "text-red-400",
+        bg: "bg-red-500/10",
+        border: "border-red-500/30",
+        title: "Execução travada",
+        message: "Você começou, mas não finalizou. Conclua a primeira tarefa.",
+        action: "Ver tarefas",
+      };
     }
 
-    if (user.goal === "STUDY") {
-      return "Consistência diária supera intensidade.";
+    if (productivity < 50) {
+      return {
+        icon: TrendingUp,
+        color: "text-yellow-400",
+        bg: "bg-yellow-500/10",
+        border: "border-yellow-500/30",
+        title: "Progresso parcial",
+        message: "Pare de iniciar novas tarefas. Termine as atuais.",
+        action: "Continuar execução",
+      };
     }
 
-    if (user.goal === "WORK") {
-      return "Priorize tarefas de alto impacto.";
+    if (productivity < 80) {
+      return {
+        icon: TrendingUp,
+        color: "text-blue-400",
+        bg: "bg-blue-500/10",
+        border: "border-blue-500/30",
+        title: "Bom ritmo",
+        message: "Continue focado. Evite distrações agora.",
+        action: "Ver tarefas",
+      };
     }
 
-    return "Organize seu dia para manter consistência.";
+    return {
+      icon: CheckCircle2,
+      color: "text-green-400",
+      bg: "bg-green-500/10",
+      border: "border-green-500/30",
+      title: "Alta performance",
+      message: "Execução forte hoje. Continue consistente.",
+      action: "Revisar tarefas",
+    };
   };
 
-  return (
-    <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-xl">
-      <div className="text-sm text-zinc-400">
-        Insight do dia
-      </div>
+  const insight = getInsight();
+  const Icon = insight.icon;
 
-      <div className="mt-2 text-white">
-        {getInsight()}
+  return (
+    <div
+      className={`
+        p-6 rounded-2xl border transition
+        bg-zinc-900 ${insight.border}
+      `}
+    >
+      <div className="flex items-start gap-4">
+
+        {/* ICON */}
+        <div
+          className={`
+            w-11 h-11 flex items-center justify-center rounded-xl
+            ${insight.bg} ${insight.color}
+          `}
+        >
+          <Icon size={20} />
+        </div>
+
+        {/* CONTENT */}
+        <div className="flex-1">
+
+          <div className="text-sm text-zinc-400">
+            Insight do dia
+          </div>
+
+          <div className="mt-1 text-white font-semibold">
+            {insight.title}
+          </div>
+
+          <div className="text-sm text-zinc-400 mt-1">
+            {insight.message}
+          </div>
+
+          <button
+            onClick={() => router.push("/tasks")}
+            className="mt-3 cursor-pointer text-xs text-purple-400 hover:text-purple-300 transition"
+          >
+            {insight.action} →
+          </button>
+
+        </div>
+
       </div>
     </div>
   );

@@ -1,28 +1,53 @@
-// modules/goals/dto/goal.dto.ts
-
 import {
   IsString,
   IsOptional,
-  IsInt,
   IsEnum,
   IsDateString,
-  Min,
-  Max,
   MaxLength,
   MinLength,
+  ValidateNested,
+  IsArray,
 } from 'class-validator';
-
-export enum GoalStatus {
-  ACTIVE = 'ACTIVE',
-  PAUSED = 'PAUSED',
-  COMPLETED = 'COMPLETED',
-  ABANDONED = 'ABANDONED',
-}
+import { Type } from 'class-transformer';
 
 export enum GoalPriority {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
+}
+
+export enum TaskStatus {
+  TODO = 'TODO',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DONE = 'DONE',
+}
+
+export enum TaskPriority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+}
+
+class TaskDto {
+  @IsString()
+  @MinLength(2)
+  title: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsEnum(TaskStatus)
+  status?: TaskStatus;
+
+  @IsOptional()
+  @IsEnum(TaskPriority)
+  priority?: TaskPriority;
+
+  @IsOptional()
+  @IsDateString()
+  dueDate?: string;
 }
 
 export class GoalDto {
@@ -38,18 +63,8 @@ export class GoalDto {
   description?: string;
 
   @IsOptional()
-  @IsEnum(GoalStatus)
-  status?: GoalStatus;
-
-  @IsOptional()
   @IsEnum(GoalPriority)
   priority?: GoalPriority;
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Max(100)
-  progress?: number;
 
   @IsOptional()
   @IsDateString()
@@ -61,11 +76,17 @@ export class GoalDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(7) // "#ffffff"
+  @MaxLength(7)
   color?: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(8) // emoji
+  @MaxLength(8)
   icon?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TaskDto)
+  tasks?: TaskDto[];
 }

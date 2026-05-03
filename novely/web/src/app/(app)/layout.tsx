@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
 import { User } from "@/app/types/user";
+import Loading from "../components/ui/loading";
 
 export default function AppLayout({
   children,
@@ -31,14 +32,9 @@ export default function AppLayout({
     loadUser();
   }, []);
 
-  // Loading seguro (evita crash no Sidebar/Header)
   if (loading || !user) {
-    return (
-      <div className="h-screen bg-zinc-950 flex items-center justify-center text-zinc-400 text-sm">
-        Carregando...
-      </div>
-    );
-  }
+  return <Loading fullScreen text="Carregando Informações..." />;
+}
 
   return (
     <div className="flex h-screen bg-zinc-950 text-white overflow-hidden">

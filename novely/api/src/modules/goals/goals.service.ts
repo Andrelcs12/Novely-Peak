@@ -1,5 +1,3 @@
-// modules/goals/goals.service.ts
-
 import {
   Injectable,
   BadRequestException,
@@ -22,6 +20,9 @@ export class GoalsService {
         userId,
         archivedAt: null,
       },
+      include: {
+        tasks: true,
+      },
       orderBy: [
         { status: 'asc' },
         { priority: 'desc' },
@@ -31,11 +32,12 @@ export class GoalsService {
   }
 
   // =========================
-  // FIND ONE (secure)
+  // FIND ONE
   // =========================
   async findOne(id: string, userId: string) {
     const goal = await this.prisma.goal.findFirst({
-      where: { id, userId },
+      where: { id, userId, archivedAt: null },
+      include: { tasks: true },
     });
 
     if (!goal) {
@@ -45,113 +47,180 @@ export class GoalsService {
     return goal;
   }
 
-  // =========================
-  // CREATE
-  // =========================
   async create(userId: string, data: GoalDto) {
-    this.validateGoalInput(data);
+  this.validateCreate(data);
 
-    return this.prisma.goal.create({
-      data: {
-        title: data.title!.trim(),
-        description: data.description ?? null,
+  return this.prisma.goal.create({
+    data: {
+      title: data.title!.trim(),
+      description: data.description ?? null,
 
-        status: (data.status as any) ?? 'ACTIVE',
-        priority: (data.priority as any) ?? 'MEDIUM',
-        progress: data.progress ?? 0,
+      status: GoalStatus.ACTIVE,
+      priority: data.priority ?? 'MEDIUM',
+      progress: 0,
 
-        dueDate: data.dueDate ? new Date(data.dueDate) : null,
-        completedAt: null,
+      dueDate: data.dueDate ? new Date(data.dueDate) : null,
 
-        category: data.category ?? null,
-        color: data.color ?? null,
-        icon: data.icon ?? null,
+      category: data.category ?? null,
+      color: data.color ?? null,
+      icon: data.icon ?? null,
 
-        archivedAt: null,
-
-        user: {
-          connect: { id: userId },
-        },
+      user: {
+        connect: { id: userId },
       },
-    });
-  }
+
+      tasks: data.tasks?.length
+        ? {
+            create: data.tasks.map((t) => ({
+              title: t.title,
+              description: t.description ?? null,
+              status: t.status ?? 'TODO',
+              priority: t.priority ?? 'MEDIUM',
+              dueDate: t.dueDate ? new Date(t.dueDate) : null,
+
+              // 🔥 CORREÇÃO PRINCIPAL
+              user: {
+                connect: { id: userId },
+              },
+            })),
+          }
+        : undefined,
+    },
+    include: { tasks: true },
+  });
+}
+
 
   // =========================
-  // UPDATE
-  // NÃO atualiza status/progress aqui — use rotas dedicadas
+  // UPDATE (COM TASKS)
   // =========================
   async update(id: string, userId: string, data: GoalDto) {
     await this.ensureOwnership(id, userId);
-    this.validateGoalInput(data);
+    this.validateUpdate(data);
 
-    return this.prisma.goal.update({
-      where: { id },
-      data: {
-        title: data.title?.trim(),
-        description: data.description,
-        priority: data.priority as any,
-        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-        category: data.category,
-        color: data.color,
-        icon: data.icon,
-        updatedAt: new Date(),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Atualiza meta
+      await tx.goal.update({
+        where: { id },
+        data: {
+          title: data.title?.trim(),
+          description: data.description ?? undefined,
+          priority: data.priority ?? undefined,
+          dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+          category: data.category ?? undefined,
+          color: data.color ?? undefined,
+          icon: data.icon ?? undefined,
+        },
+      });
+
+      // 2. Atualiza tasks corretamente
+      if (data.tasks) {
+        // remove tasks antigas dessa meta
+        await tx.task.deleteMany({
+          where: { goalId: id },
+        });
+
+        // recria vinculadas
+        await tx.task.createMany({
+          data: data.tasks.map((t) => ({
+            title: t.title,
+            description: t.description ?? null,
+            status: t.status ?? 'TODO',
+            priority: t.priority ?? 'MEDIUM',
+            dueDate: t.dueDate ? new Date(t.dueDate) : null,
+            userId,
+            goalId: id,
+          })),
+        });
+      }
+
+      return tx.goal.findUnique({
+        where: { id },
+        include: { tasks: true },
+      });
     });
   }
 
   // =========================
-  // UPDATE PROGRESS
-  // Rota: PATCH /goals/:id/progress
-  // Body: { progress: 0–100 }
+  // PROGRESS (manual)
   // =========================
   async updateProgress(id: string, userId: string, progress: number) {
     await this.ensureOwnership(id, userId);
 
-    if (typeof progress !== 'number' || progress < 0 || progress > 100) {
-      throw new BadRequestException('Progresso deve ser entre 0 e 100');
+    if (progress < 0 || progress > 100) {
+      throw new BadRequestException('Progresso inválido');
     }
-
-    // Auto-completa se chegar em 100
-    const completedAt = progress === 100 ? new Date() : null;
-    const status = progress === 100 ? 'COMPLETED' : undefined;
 
     return this.prisma.goal.update({
       where: { id },
       data: {
         progress,
-        ...(completedAt !== null && { completedAt }),
-        ...(status && { status }),
+        completedAt: progress === 100 ? new Date() : null,
+        status:
+          progress === 100
+            ? GoalStatus.COMPLETED
+            : GoalStatus.ACTIVE,
       },
     });
   }
 
+  
+
+  async recalcGoalProgress(goalId: string) {
+  const goal = await this.prisma.goal.findUnique({
+    where: { id: goalId },
+    include: { tasks: true },
+  });
+
+  if (!goal) return;
+
+  const total = goal.tasks.length;
+
+  if (total === 0) {
+    return this.prisma.goal.update({
+      where: { id: goalId },
+      data: {
+        progress: 0,
+        status: GoalStatus.ACTIVE,
+        completedAt: null,
+      },
+    });
+  }
+
+  const done = goal.tasks.filter(t => t.status === 'DONE').length;
+
+  const progress = Math.round((done / total) * 100);
+
+  return this.prisma.goal.update({
+    where: { id: goalId },
+    data: {
+      progress,
+      status: progress === 100 ? GoalStatus.COMPLETED : GoalStatus.ACTIVE,
+      completedAt: progress === 100 ? new Date() : null,
+    },
+  });
+}
+
   // =========================
-  // UPDATE STATUS
-  // Rota: PATCH /goals/:id/status
-  // Body: { status: GoalStatus }
+  // STATUS
   // =========================
   async updateStatus(id: string, userId: string, status: GoalStatus) {
     await this.ensureOwnership(id, userId);
 
-    const validStatuses = Object.values(GoalStatus);
-    if (!validStatuses.includes(status)) {
-      throw new BadRequestException('Status inválido');
-    }
-
-    const completedAt =
-      status === GoalStatus.COMPLETED ? new Date() : null;
-
     return this.prisma.goal.update({
       where: { id },
       data: {
-        status: status as any,
-        ...(completedAt !== null && { completedAt }),
+        status,
+        completedAt:
+          status === GoalStatus.COMPLETED
+            ? new Date()
+            : null,
       },
     });
   }
 
   // =========================
-  // DELETE (soft delete)
+  // DELETE (soft)
   // =========================
   async remove(id: string, userId: string) {
     await this.ensureOwnership(id, userId);
@@ -165,39 +234,23 @@ export class GoalsService {
   }
 
   // =========================
-  // VALIDATION
+  // VALIDATIONS
   // =========================
-  private validateGoalInput(data: GoalDto) {
-    if (data.title !== undefined) {
-      if (!data.title || data.title.trim().length < 3) {
-        throw new BadRequestException('Título muito curto');
-      }
-      if (data.title.length > 120) {
-        throw new BadRequestException('Título muito longo');
-      }
-    }
-
-    if (data.progress !== undefined) {
-      if (data.progress < 0 || data.progress > 100) {
-        throw new BadRequestException('Progresso deve ser entre 0 e 100');
-      }
-    }
-
-    if (data.dueDate && new Date(data.dueDate) < new Date('2020-01-01')) {
-      throw new BadRequestException('Data inválida');
-    }
-
-    if (data.color && !/^#[0-9a-fA-F]{6}$/.test(data.color)) {
-      throw new BadRequestException('Cor inválida (use hex: #rrggbb)');
+  private validateCreate(data: GoalDto) {
+    if (!data.title || data.title.trim().length < 3) {
+      throw new BadRequestException('Título inválido');
     }
   }
 
-  // =========================
-  // OWNERSHIP CHECK
-  // =========================
+  private validateUpdate(data: GoalDto) {
+    if (data.title && data.title.trim().length < 3) {
+      throw new BadRequestException('Título inválido');
+    }
+  }
+
   private async ensureOwnership(id: string, userId: string) {
     const goal = await this.prisma.goal.findFirst({
-      where: { id, userId },
+      where: { id, userId, archivedAt: null },
       select: { id: true },
     });
 

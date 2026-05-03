@@ -2,10 +2,14 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { TaskDto } from './dto/task.dto';
 import { PrismaService } from '@/prisma.service';
 import { TaskStatus } from '../../../generated/prisma/enums';
+import { GoalsService } from '../goals/goals.service';
 
 @Injectable()
 export class TasksService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+  private prisma: PrismaService,
+  private goalsService: GoalsService, // 🔥 aqui
+) {}
 
   // =========================
   // LIST
@@ -37,6 +41,7 @@ export class TasksService {
 
     return task;
   }
+  
 
   // =========================
   // CREATE (business rules)

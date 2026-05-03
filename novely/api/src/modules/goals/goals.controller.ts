@@ -1,5 +1,3 @@
-// modules/goals/goals.controller.ts
-
 import {
   Controller,
   Get,
@@ -16,9 +14,8 @@ import {
 import { GoalsService } from './goals.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { GoalDto } from './dto/goals.dto';
+import { GoalStatus } from '../../../generated/prisma/enums';
 
-// Mesmo padrão de segurança do TasksController:
-// AuthGuard em nível de controller, userId sempre de req.user.id
 @UseGuards(AuthGuard)
 @Controller('goals')
 export class GoalsController {
@@ -35,7 +32,7 @@ export class GoalsController {
   }
 
   @Post()
-  create(@Req() req: any, @Body() dto: GoalDto) {
+  create(@Req() req: any, @Body() dto: GoalDto & { taskIds?: string[] }) {
     return this.goalsService.create(req.user.id, dto);
   }
 
@@ -43,36 +40,39 @@ export class GoalsController {
   update(
     @Param('id') id: string,
     @Req() req: any,
-    @Body() dto: GoalDto,
+    @Body() dto: GoalDto & { taskIds?: string[] },
   ) {
     return this.goalsService.update(id, req.user.id, dto);
   }
 
-  // Rota dedicada para progresso — evita conflito com update()
   @Patch(':id/progress')
   updateProgress(
     @Param('id') id: string,
     @Req() req: any,
     @Body('progress') progress: number,
   ) {
-    if (progress === undefined || progress === null) {
-      throw new BadRequestException('progress é obrigatório');
+    if (progress === undefined) {
+      throw new BadRequestException('progress obrigatório');
     }
-    return this.goalsService.updateProgress(id, req.user.id, Number(progress));
+
+    return this.goalsService.updateProgress(
+      id,
+      req.user.id,
+      Number(progress),
+    );
   }
 
-  // Rota dedicada para status — mesmo padrão do toggleStatus das tasks
   @Patch(':id/status')
   updateStatus(
     @Param('id') id: string,
     @Req() req: any,
-    @Body('status') status: string,
+    @Body('status') status: GoalStatus,
   ) {
-    const validStatuses = Object.values(GoalStatus);
-    if (!validStatuses.includes(status as GoalStatus)) {
-      throw new BadRequestException('Status inválido');
-    }
-    return this.goalsService.updateStatus(id, req.user.id, status as GoalStatus);
+    return this.goalsService.updateStatus(
+      id,
+      req.user.id,
+      status,
+    );
   }
 
   @Delete(':id')

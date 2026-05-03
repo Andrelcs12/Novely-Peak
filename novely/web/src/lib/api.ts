@@ -35,6 +35,7 @@ async function request(path: string, options: RequestInit = {}) {
   return data;
 }
 
+
 export const api = {
   get: (path: string) => request(path),
 
@@ -47,6 +48,13 @@ export const api = {
   patch: (path: string, body?: any) =>
     request(path, {
       method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+
+  // ✅ ADD ISSO
+  put: (path: string, body?: any) =>
+    request(path, {
+      method: "PUT",
       body: JSON.stringify(body),
     }),
 
