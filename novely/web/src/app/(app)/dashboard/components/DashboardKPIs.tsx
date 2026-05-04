@@ -1,12 +1,14 @@
 "use client";
 
-import { CheckSquare, Target, Zap } from "lucide-react";
+import StatCard from "@/app/components/ui/StatCard";
+import { CheckSquare, Target, Zap, CheckCircle2 } from "lucide-react";
 
 type Props = {
   tasks: number;
   completedTasks: number;
   goals: number;
   productivity: number;
+  last7dCompleted: number; // 🔥 novo
 };
 
 export default function DashboardKPIs({
@@ -14,86 +16,49 @@ export default function DashboardKPIs({
   completedTasks,
   goals,
   productivity,
+  last7dCompleted,
 }: Props) {
-
-  const getProductivityColor = () => {
-    if (productivity < 30) return "text-red-400";
-    if (productivity < 70) return "text-yellow-400";
-    return "text-green-400";
-  };
 
   const percent =
     tasks === 0 ? 0 : Math.round((completedTasks / tasks) * 100);
 
+  const getProductivityColor = () => {
+    if (productivity < 30) return "#ef4444";
+    if (productivity < 70) return "#eab308";
+    return "#22c55e";
+  };
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-      {/* EXECUÇÃO */}
-      <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition">
-        <div className="flex items-center gap-4">
+      <StatCard
+        label="Execução de tarefas"
+        value={`${completedTasks}/${tasks}`}
+        icon={CheckSquare}
+        color="#3b82f6"
+      />
 
-          <div className="w-11 h-11 flex items-center justify-center rounded-xl bg-blue-500/10 text-blue-400">
-            <CheckSquare size={20} />
-          </div>
+      <StatCard
+        label="Metas ativas"
+        value={goals}
+        icon={Target}
+        color="#22c55e"
+      />
 
-          <div>
-            <span className="text-sm text-zinc-400">
-              Execução de tarefas
-            </span>
+      <StatCard
+        label="Taxa de execução"
+        value={`${productivity}%`}
+        icon={Zap}
+        color={getProductivityColor()}
+      />
 
-            <div className="text-2xl font-bold text-white">
-              {completedTasks}/{tasks}
-            </div>
-
-            <div className="text-xs text-zinc-500 mt-1">
-              {tasks === 0 ? "Sem tarefas" : `${percent}% concluído`}
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {/* METAS */}
-      <div className="p-5 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition">
-        <div className="flex items-center gap-4">
-
-          <div className="w-11 h-11 flex items-center justify-center rounded-xl bg-green-500/10 text-green-400">
-            <Target size={20} />
-          </div>
-
-          <div>
-            <span className="text-sm text-zinc-400">
-              Metas ativas
-            </span>
-
-            <div className="text-2xl font-bold text-white">
-              {goals}
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {/* PERFORMANCE */}
-      <div className="p-5 rounded-2xl bg-purple-600/10 border border-purple-500/30 hover:border-purple-400/40 transition">
-        <div className="flex items-center gap-4">
-
-          <div className="w-11 h-11 flex items-center justify-center rounded-xl bg-purple-500/10 text-purple-400">
-            <Zap size={20} />
-          </div>
-
-          <div>
-            <span className="text-sm text-zinc-400">
-              Taxa de execução
-            </span>
-
-            <div className={`text-2xl font-bold ${getProductivityColor()}`}>
-              {productivity}%
-            </div>
-          </div>
-
-        </div>
-      </div>
+      {/* 🔥 NOVO CARD */}
+      <StatCard
+        label="Concluídas (7 dias)"
+        value={last7dCompleted}
+        icon={CheckCircle2}
+        color="#22c55e"
+      />
 
     </div>
   );

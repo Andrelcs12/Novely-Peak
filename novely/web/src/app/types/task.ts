@@ -1,3 +1,4 @@
+//types/task.ts
 
 export type Task = {
   id: string;
@@ -15,8 +16,11 @@ export type Task = {
 
   completedAt?: string | null;
 
+  category?: string | null; // ✅ ADICIONAR
+
   createdAt: string;
   updatedAt: string;
 };
+
 
 export type Plan = "FREE" | "PRO";

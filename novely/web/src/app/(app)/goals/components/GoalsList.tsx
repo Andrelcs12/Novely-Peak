@@ -58,8 +58,15 @@ export default function GoalsList({
     );
   }
 
+  const isSingle = goals.length === 1;
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div
+      className={`
+        grid gap-4
+        ${isSingle ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"}
+      `}
+    >
       {goals.map((goal) => {
         const done = goal.status === "COMPLETED";
 
@@ -77,7 +84,7 @@ export default function GoalsList({
         return (
           <div
             key={goal.id}
-            onClick={() => onOpen(goal)}
+            onClick={() => onOpen(goal)} // 🔥 OPEN EXPANDED AQUI
             className="
               group
               p-4
@@ -90,9 +97,9 @@ export default function GoalsList({
               hover:bg-zinc-900/80
               transition
               relative
+              active:scale-[0.99]
             "
           >
-
             {/* HINT */}
             <div className="absolute top-2 right-2 flex items-center gap-1 text-[10px] text-zinc-500 opacity-0 group-hover:opacity-100 transition">
               <ExternalLink size={10} />
@@ -101,10 +108,7 @@ export default function GoalsList({
 
             {/* HEADER */}
             <div className="flex items-start justify-between gap-3">
-
-              {/* LEFT */}
               <div className="flex gap-3 min-w-0">
-
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -120,7 +124,11 @@ export default function GoalsList({
                 </button>
 
                 <div className="min-w-0">
-                  <p className={`text-sm font-medium truncate ${done ? "line-through text-zinc-500" : "text-zinc-100"}`}>
+                  <p
+                    className={`text-sm font-medium truncate ${
+                      done ? "line-through text-zinc-500" : "text-zinc-100"
+                    }`}
+                  >
                     {goal.title}
                   </p>
 
@@ -130,28 +138,26 @@ export default function GoalsList({
                     </p>
                   )}
 
-                  {/* STATUS */}
                   <span className="text-[10px] text-zinc-500 mt-1 block">
                     {STATUS_LABEL[goal.status]}
                   </span>
                 </div>
               </div>
 
-              {/* ACTIONS */}
               <div
                 className="flex gap-1"
                 onClick={(e) => e.stopPropagation()}
               >
                 <button
                   onClick={() => onEdit(goal)}
-                  className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition"
+                  className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700"
                 >
                   <Pencil size={14} />
                 </button>
 
                 <button
                   onClick={() => onDelete(goal)}
-                  className="p-2 rounded-lg bg-zinc-800 hover:bg-red-500/20 text-zinc-300 hover:text-red-400 transition"
+                  className="p-2 rounded-lg bg-zinc-800 hover:bg-red-500/20"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -160,8 +166,7 @@ export default function GoalsList({
 
             {/* TAGS */}
             <div className="flex flex-wrap gap-2 text-[11px] text-zinc-400">
-
-              <span className={`flex items-center gap-1 ${PRIORITY_COLOR[goal.priority]}`}>
+              <span className={`${PRIORITY_COLOR[goal.priority]} flex items-center gap-1`}>
                 <Flag size={10} />
                 {PRIORITY_LABEL[goal.priority]}
               </span>
@@ -179,10 +184,9 @@ export default function GoalsList({
                   Atrasada
                 </span>
               )}
-
             </div>
 
-            {/* PROGRESS BAR */}
+            {/* PROGRESS */}
             <div>
               <div className="flex justify-between text-[10px] text-zinc-500">
                 <span>Progresso</span>
@@ -199,7 +203,6 @@ export default function GoalsList({
 
             {/* KPIS */}
             <div className="grid grid-cols-3 gap-2 text-[11px]">
-
               <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-800">
                 <div className="text-zinc-500 flex items-center gap-1 mb-1">
                   <Activity size={10} />
@@ -229,16 +232,12 @@ export default function GoalsList({
               </div>
 
               <div className="p-2 rounded-lg bg-zinc-950 border border-zinc-800">
-                <div className="text-zinc-500 mb-1">
-                  Tasks
-                </div>
+                <div className="text-zinc-500 mb-1">Tasks</div>
                 <div className="text-purple-300 font-semibold">
                   {doneTasks}/{totalTasks}
                 </div>
               </div>
-
             </div>
-
           </div>
         );
       })}

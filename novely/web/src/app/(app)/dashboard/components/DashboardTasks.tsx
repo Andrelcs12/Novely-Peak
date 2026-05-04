@@ -98,6 +98,9 @@ export default function DashboardTasks({
         status: "DONE",
       });
 
+      // 🔥 ADICIONAR AQUI
+      window.dispatchEvent(new Event("streak_updated"));
+
       onReload?.(); // opcional
     } catch (err) {
       console.error(err);

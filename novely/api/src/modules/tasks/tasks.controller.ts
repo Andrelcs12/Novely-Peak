@@ -11,6 +11,7 @@ import {
   Req,
   UseGuards,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 
 import { TasksService } from './tasks.service';
@@ -28,9 +29,12 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Get()
-  findAll(@Req() req: any) {
-    return this.tasksService.findAll(req.user.id);
-  }
+findAll(
+  @Req() req: any,
+  @Query("period") period?: string
+) {
+  return this.tasksService.findAll(req.user.id, period);
+}
 
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req: any) {

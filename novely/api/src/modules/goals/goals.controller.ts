@@ -9,6 +9,7 @@ import {
   Req,
   UseGuards,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 
 import { GoalsService } from './goals.service';
@@ -22,9 +23,12 @@ export class GoalsController {
   constructor(private readonly goalsService: GoalsService) {}
 
   @Get()
-  findAll(@Req() req: any) {
-    return this.goalsService.findAll(req.user.id);
-  }
+findAll(
+  @Req() req: any,
+  @Query('period') period?: string
+) {
+  return this.goalsService.findAll(req.user.id, period);
+}
 
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req: any) {

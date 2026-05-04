@@ -14,22 +14,39 @@ export class GoalsService {
   // =========================
   // LIST
   // =========================
-  async findAll(userId: string) {
-    return this.prisma.goal.findMany({
-      where: {
-        userId,
-        archivedAt: null,
-      },
-      include: {
-        tasks: true,
-      },
-      orderBy: [
-        { status: 'asc' },
-        { priority: 'desc' },
-        { createdAt: 'desc' },
-      ],
-    });
+  async findAll(userId: string, period?: string) {
+  const where: any = {
+    userId,
+    archivedAt: null,
+  };
+
+  if (period === "today") {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    where.createdAt = { gte: start, lte: end };
   }
+
+  if (period === "week") {
+    const start = new Date();
+    start.setDate(start.getDate() - 7);
+
+    where.createdAt = { gte: start };
+  }
+
+  return this.prisma.goal.findMany({
+    where,
+    include: { tasks: true },
+    orderBy: [
+      { status: "asc" },
+      { priority: "desc" },
+      { createdAt: "desc" },
+    ],
+  });
+}
 
   // =========================
   // FIND ONE

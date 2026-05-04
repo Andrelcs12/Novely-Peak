@@ -13,11 +13,17 @@ import GoalsAnalytics from "./components/GoalsAnalytics";
 import GoalModal from "./components/GoalsModal";
 import GoalsHelpModal from "./components/GoalsHelpModal";
 import GoalExpanded from "./components/GoalDetailPanel";
+import GoalsHistory7d from "./components/GoalsHistory7d";
 import GoalsSkeleton from "./components/GoalsSkeleton";
+
+type Period = "today" | "week" | "all";
 
 export default function GoalsPage() {
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [goals7d, setGoals7d] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [period, setPeriod] = useState<Period>("today");
 
   const [open, setOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
@@ -25,70 +31,50 @@ export default function GoalsPage() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [expandedGoal, setExpandedGoal] = useState<Goal | null>(null);
 
-  // FILTERS
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<GoalStatusFilter>("ALL");
   const [priority, setPriority] = useState<GoalPriorityFilter>("ALL");
 
+  // =========================
+  // LOAD GOALS (FONTE ÚNICA)
+  // =========================
   const loadGoals = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.get("/goals");
+      const [res, res7d] = await Promise.all([
+        api.get(`/goals?period=${period}`),
+        api.get(`/goals?period=week`),
+      ]);
+
+      const data = res.data ?? res;
+      const data7d = res7d.data ?? res7d;
+
       setGoals(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error(err);
-      setGoals([]);
+      setGoals7d(Array.isArray(data7d) ? data7d : []);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [period]);
 
   useEffect(() => {
     loadGoals();
   }, [loadGoals]);
 
-  // FILTER ENGINE
+  // =========================
+  // FILTERED GOALS
+  // =========================
   const filteredGoals = useMemo(() => {
-    return goals
-      .filter((g) => {
-        const matchSearch = g.title
-          .toLowerCase()
-          .includes(search.toLowerCase());
-
-        const matchStatus = status === "ALL" || g.status === status;
-        const matchPriority = priority === "ALL" || g.priority === priority;
-
-        return matchSearch && matchStatus && matchPriority;
-      })
-      .sort((a, b) => {
-        const riskOrder: Record<string, number> = { HIGH: 0, MEDIUM: 1, LOW: 2 };
-        const aRisk = a.riskLevel ?? "LOW";
-        const bRisk = b.riskLevel ?? "LOW";
-
-        if (aRisk !== bRisk) {
-          return (riskOrder[aRisk] ?? 2) - (riskOrder[bRisk] ?? 2);
-        }
-
-        return b.progress - a.progress;
-      });
+    return goals.filter((g) => {
+      const matchSearch = g.title.toLowerCase().includes(search.toLowerCase());
+      const matchStatus = status === "ALL" || g.status === status;
+      const matchPriority = priority === "ALL" || g.priority === priority;
+      return matchSearch && matchStatus && matchPriority;
+    });
   }, [goals, search, status, priority]);
 
-  // ACTIONS
-  const handleEdit = (goal: Goal) => {
-    setSelectedGoal(goal);
-    setOpen(true);
-  };
-
-  const handleDelete = async (goal: Goal) => {
-    setGoals((prev) => prev.filter((g) => g.id !== goal.id));
-    try {
-      await api.delete(`/goals/${goal.id}`);
-    } catch {
-      setGoals((prev) => [...prev, goal]);
-    }
-  };
-
   const handleToggleTask = async (task: any) => {
+  if (!task?.id || !task?.goalId) return;
+
   const nextStatus =
     task.status === "DONE"
       ? "TODO"
@@ -97,70 +83,52 @@ export default function GoalsPage() {
       : "DONE";
 
   try {
+    // 🔥 GARANTE BODY SEMPRE EXISTE
     await api.patch(`/tasks/${task.id}/status`, {
       status: nextStatus,
     });
 
-    // 🔥 recalcula progresso da meta
-    await api.post(`/goals/${task.goalId}/recalc`);
+    // ❌ REMOVIDO: endpoint inexistente
+    // await api.post(`/goals/${task.goalId}/recalc`);
 
-    // 🔥 recarrega tudo (simples e seguro)
-    await loadGoals();
+    // 🔥 usa recalc interno correto (via GET reload)
+    const [res, res7d] = await Promise.all([
+      api.get(`/goals?period=${period}`),
+      api.get(`/goals?period=week`),
+    ]);
+
+    const data = res.data ?? res;
+    const data7d = res7d.data ?? res7d;
+
+    const newGoals = Array.isArray(data) ? data : [];
+    const newGoals7d = Array.isArray(data7d) ? data7d : [];
+
+    setGoals(newGoals);
+    setGoals7d(newGoals7d);
+
+    // 🔥 sync expanded
+    setExpandedGoal((prev) => {
+      if (!prev) return null;
+      return newGoals.find((g) => g.id === prev.id) ?? null;
+    });
+
   } catch (err) {
-    console.error(err);
+    console.error("handleToggleTask error:", err);
   }
 };
 
-  const handleToggleComplete = async (goal: Goal) => {
-    const newStatus: Goal["status"] =
-      goal.status === "COMPLETED" ? "ACTIVE" : "COMPLETED";
+  // =========================
+  // LOADING
+  // =========================
+  if (loading) return <GoalsSkeleton />;
 
-    setGoals((prev) =>
-      prev.map((g) => (g.id === goal.id ? { ...g, status: newStatus } : g))
-    );
-
-    try {
-      await api.patch(`/goals/${goal.id}/status`, { status: newStatus });
-    } catch {
-      setGoals((prev) =>
-        prev.map((g) => (g.id === goal.id ? { ...g, status: goal.status } : g))
-      );
-    }
-  };
-
-  const handleProgressChange = async (goal: Goal, progress: number) => {
-    setGoals((prev) =>
-      prev.map((g) => (g.id === goal.id ? { ...g, progress } : g))
-    );
-    try {
-      await api.patch(`/goals/${goal.id}/progress`, { progress });
-    } catch {
-      setGoals((prev) =>
-        prev.map((g) => (g.id === goal.id ? { ...g, progress: goal.progress } : g))
-      );
-    }
-  };
-
-  const handleOpenGoal = (goal: Goal) => {
-    setExpandedGoal(goal);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setTimeout(() => setSelectedGoal(null), 200);
-  };
-
-  
-
-  if (loading) {
-    return <GoalsSkeleton />
-  }
-
-
+  // =========================
+  // RENDER
+  // =========================
   return (
-    <div className="space-y-6 text-white max-w-6xl mx-auto">
- 
-      {/* 1. HEADER — ação principal */}
+    <div className="space-y-6 text-white max-w-7xl mx-auto">
+
+      {/* HEADER */}
       <GoalsHeader
         onCreate={() => {
           setSelectedGoal(null);
@@ -168,10 +136,30 @@ export default function GoalsPage() {
         }}
         onOpenHelp={() => setHelpOpen(true)}
       />
- 
+
       <GoalsStats goals={goals} />
- 
       <GoalsAnalytics goals={goals} />
+
+      {/* FILTERS */}
+      <div className="flex gap-2 text-xs">
+        {[
+          { key: "today", label: "Hoje" },
+          { key: "week", label: "7 dias" },
+          { key: "all", label: "Tudo" },
+        ].map((p) => (
+          <button
+            key={p.key}
+            onClick={() => setPeriod(p.key as Period)}
+            className={`px-3 py-1 rounded ${
+              period === p.key
+                ? "bg-purple-500 text-white"
+                : "bg-zinc-800 text-zinc-400"
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
 
       <GoalsFilter
         search={search}
@@ -182,32 +170,62 @@ export default function GoalsPage() {
         setPriority={setPriority}
       />
 
-      <GoalsList
-  goals={filteredGoals}
-  onEdit={handleEdit}
-  onDelete={handleDelete}
-  onToggleComplete={handleToggleComplete}
-  onOpen={handleOpenGoal}
-/>
- 
-      {/* MODALS */}
+      {/* GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        {/* LIST */}
+        <div className="lg:col-span-7">
+          <GoalsList
+            goals={filteredGoals}
+            onEdit={(g) => {
+              setSelectedGoal(g);
+              setOpen(true);
+            }}
+            onDelete={async (goal) => {
+              setGoals((p) => p.filter((g) => g.id !== goal.id));
+              await api.delete(`/goals/${goal.id}`);
+            }}
+            onToggleComplete={async (goal) => {
+              await api.patch(`/goals/${goal.id}/status`, {
+                status:
+                  goal.status === "COMPLETED" ? "ACTIVE" : "COMPLETED",
+              });
+
+              loadGoals();
+            }}
+            onOpen={(goal) => setExpandedGoal(goal)}
+          />
+        </div>
+
+        {/* SIDEBAR */}
+        <div className="lg:col-span-5 space-y-6">
+
+          <GoalsHistory7d
+            goals={goals7d}
+            onSelect={(goal) => setExpandedGoal(goal)}
+          />
+
+          <GoalExpanded
+            goal={expandedGoal}
+            onClose={() => setExpandedGoal(null)}
+            onToggleTask={handleToggleTask}
+          />
+
+        </div>
+      </div>
+
+      {/* MODAIS */}
       <GoalModal
         open={open}
-        onClose={handleClose}
+        onClose={() => setOpen(false)}
         onSaved={loadGoals}
         goal={selectedGoal}
       />
- 
+
       <GoalsHelpModal
         open={helpOpen}
         onClose={() => setHelpOpen(false)}
       />
- 
-      <GoalExpanded
-  goal={expandedGoal}
-  onClose={() => setExpandedGoal(null)}
-  onToggleTask={handleToggleTask}
-/>
     </div>
   );
 }

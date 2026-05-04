@@ -97,6 +97,25 @@ export class StreakService {
     return this.response(updated, progress, true);
   }
 
+  async calculateDailyProgress(userId: string) {
+  const todayKey = this.getTodayKey();
+
+  const tasksToday = await this.prisma.task.findMany({
+    where: {
+      userId,
+      createdAt: {
+        gte: new Date(todayKey),
+      },
+    },
+  });
+
+  if (!tasksToday.length) return 0;
+
+  const done = tasksToday.filter(t => t.status === "DONE").length;
+
+  return Math.round((done / tasksToday.length) * 100);
+}
+
   async get(userId: string) {
   const streak = await this.prisma.streak.findUnique({
     where: { userId },
@@ -118,7 +137,7 @@ export class StreakService {
 }
 
 
-  async getToday(userId: string) {
+async getToday(userId: string) {
   const todayKey = this.getTodayKey();
 
   const history = await this.prisma.streakHistory.findUnique({
@@ -139,18 +158,15 @@ export class StreakService {
     },
   });
 
-  const streak = await this.prisma.streak.findUnique({
-    where: { userId },
-  });
+  // 🔥 NOVO
+  const progress = await this.calculateDailyProgress(userId);
 
   return {
-    started: tasksToday > 0,   // ✔ CORRETO
-    ended: !!history,          // ✔ CORRETO
-    canStart: tasksToday > 0 && !history,
-    canEnd: tasksToday > 0 && !history,
+    started: tasksToday > 0,
+    ended: !!history,
+    progress, // 🔥 ESSENCIAL
   };
 }
-
 
   // =========================
   // RULE ENGINE

@@ -17,6 +17,7 @@ type Props = {
   onToggle: (task: Task) => void;
   onDelete: (task: Task) => void;
   onEdit: (task: Task) => void;
+  onOpen: (task: Task) => void; // ✅ ADICIONADO
 };
 
 function priorityStyle(priority: Task["priority"]) {
@@ -48,6 +49,7 @@ export default function TasksList({
   onToggle,
   onDelete,
   onEdit,
+  onOpen,
 }: Props) {
   if (!tasks.length) {
     return (
@@ -65,12 +67,20 @@ export default function TasksList({
         return (
           <div
             key={task.id}
-            className={`group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-2xl  border border-zinc-800 hover:border-zinc-700 transition
-              ${task.status === "DONE" ? "bg-green-500/10" : ""}`}
+            onClick={() => onOpen(task)} // ✅ abre expanded
+            className={`group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-2xl border border-zinc-800 hover:border-purple-500/40 transition cursor-pointer
+              ${task.status === "DONE" ? "bg-green-500/10" : "bg-zinc-950"}`}
           >
             {/* LEFT */}
             <div className="flex items-start gap-3 flex-1 min-w-0">
-              <button className="cursor-pointer" onClick={() => onToggle(task)}>
+              
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggle(task);
+                }}
+                className="cursor-pointer"
+              >
                 {task.status === "DONE" ? (
                   <CheckCircle2 size={18} className="text-purple-400" />
                 ) : (
@@ -79,6 +89,7 @@ export default function TasksList({
               </button>
 
               <div className="flex flex-col min-w-0 w-full">
+
                 {/* TITLE */}
                 <span
                   className={`text-sm truncate ${
@@ -93,7 +104,6 @@ export default function TasksList({
                 {/* META */}
                 <div className="flex flex-wrap gap-2 mt-2">
 
-                  {/* PRIORITY */}
                   {task.priority && (
                     <span
                       className={`text-[10px] px-2 py-[3px] rounded-full border flex items-center gap-1 ${priorityStyle(
@@ -105,7 +115,6 @@ export default function TasksList({
                     </span>
                   )}
 
-                  {/* DATE */}
                   {task.dueDate && (
                     <span className="text-[10px] px-2 py-[3px] rounded-full border border-zinc-700 text-zinc-400 flex items-center gap-1">
                       <Calendar size={10} />
@@ -113,7 +122,6 @@ export default function TasksList({
                     </span>
                   )}
 
-                  {/* TIME */}
                   {task.estimatedTime && (
                     <span className="text-[10px] px-2 py-[3px] rounded-full border border-zinc-700 text-zinc-400 flex items-center gap-1">
                       <Clock size={10} />
@@ -121,26 +129,38 @@ export default function TasksList({
                     </span>
                   )}
 
-                  {/* OVERDUE */}
                   {overdue && (
                     <span className="text-[10px] px-2 py-[3px] rounded-full border border-red-500/40 text-red-400 flex items-center gap-1">
                       <AlertTriangle size={10} />
                       atrasada
                     </span>
                   )}
+
                 </div>
               </div>
             </div>
 
             {/* ACTIONS */}
             <div className="flex items-center gap-3 sm:opacity-0 sm:group-hover:opacity-100 transition">
-              <button onClick={() => onEdit(task)}>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(task);
+                }}
+              >
                 <Pencil size={16} className="text-zinc-400 hover:text-white" />
               </button>
 
-              <button onClick={() => onDelete(task)}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(task);
+                }}
+              >
                 <Trash2 size={16} className="text-zinc-400 hover:text-red-400" />
               </button>
+
             </div>
           </div>
         );

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Goal } from "@/app/types/goal";
 import {
   X,
@@ -7,282 +8,310 @@ import {
   ShieldAlert,
   Brain,
   BarChart3,
-  CheckSquare,
-  Calendar,
-  Flag,
   Activity,
   Target,
+  Calendar,
+  Save,
+  Flag,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { api } from "@/lib/api";
 
 type Props = {
   goal: Goal | null;
   onClose: () => void;
-  onToggleTask: (task: any) => void; // pode tipar melhor depois
+  onToggleTask: (task: any) => void;
+  onUpdated?: () => void;
 };
 
-export default function GoalExpanded({ goal, onClose, onToggleTask }: Props) {
-  if (!goal) return null;
+export default function GoalExpanded({
+  goal,
+  onClose,
+  onToggleTask,
+  onUpdated,
+}: Props) {
+  const [localGoal, setLocalGoal] = useState<Goal | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  const isCompleted = goal.status === "COMPLETED";
+  useEffect(() => {
+    setLocalGoal(goal);
+  }, [goal]);
 
-  const totalTasks = goal.tasks?.length ?? 0;
-  const doneTasks =
-    goal.tasks?.filter((t) => t.status === "DONE").length ?? 0;
+  if (!localGoal) return null;
 
-  const tasksProgress =
-    totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+  const updateTask = (index: number, field: string, value: any) => {
+    setLocalGoal((prev) => {
+      if (!prev) return prev;
+
+      const tasks = [...(prev.tasks || [])];
+      tasks[index] = {
+        ...tasks[index],
+        [field]: value,
+      };
+
+      return { ...prev, tasks };
+    });
+  };
+
+  const saveAll = async () => {
+    if (!localGoal) return;
+
+    setSaving(true);
+    try {
+      await api.patch(`/goals/${localGoal.id}`, {
+        title: localGoal.title,
+        description: localGoal.description,
+        status: localGoal.status,
+        priority: localGoal.priority,
+        tasks: localGoal.tasks,
+      });
+
+      onUpdated?.();
+      onClose();
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <AnimatePresence>
-      {/* overlay */}
-      <motion.div
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      />
+      {goal && (
+        <div className="fixed inset-0 z-50 flex justify-end">
 
-      {/* modal */}
-      <motion.div
-        className="fixed inset-0 flex items-center justify-center z-50 p-4"
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.96 }}
-      >
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-3xl bg-zinc-950 border border-zinc-800 rounded-2xl p-6 space-y-6"
-        >
+          {/* BACKDROP */}
+          <motion.div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
 
-          {/* HEADER */}
-          <div className="flex justify-between items-start">
-            <div className="space-y-1">
-              <h2 className="text-xl font-semibold text-white">
-                {goal.title}
-              </h2>
+          {/* PANEL */}
+          <motion.div
+            className="
+              relative
+              w-full sm:w-[560px]
+              h-full
+              bg-zinc-950
+              border-l border-zinc-800
+              flex flex-col
+              overflow-hidden
+            "
+            initial={{ x: 420, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 420, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 25 }}
+          >
 
-              <p className="text-xs text-zinc-500">
-                {goal.description || "Sem descrição definida"}
-              </p>
+            {/* HEADER */}
+            <div className="flex items-start justify-between p-5 border-b border-zinc-800">
+              <div className="space-y-1 w-full pr-4">
 
-              <div className="text-[10px] text-zinc-600 pt-1">
-                Clique fora para fechar
-              </div>
-            </div>
+                <p className="text-xs text-zinc-500">
+                  Detalhes da meta
+                </p>
 
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg hover:bg-zinc-800"
-            >
-              <X size={16} />
-            </button>
-          </div>
+                <input
+                  value={localGoal.title}
+                  onChange={(e) =>
+                    setLocalGoal({ ...localGoal, title: e.target.value })
+                  }
+                  className="text-xl font-semibold text-white bg-transparent outline-none w-full"
+                />
 
-          {/* STATUS + METADADOS */}
-          <div className="flex flex-wrap gap-2 text-xs">
-
-            <span className="px-2 py-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-300">
-              Status: {goal.status}
-            </span>
-
-            <span className="flex items-center gap-1 text-zinc-400">
-              <Flag size={12} />
-              {goal.priority}
-            </span>
-
-            {goal.dueDate && (
-              <span className="flex items-center gap-1 text-zinc-400">
-                <Calendar size={12} />
-                Prazo: {new Date(goal.dueDate).toLocaleDateString("pt-BR")}
-              </span>
-            )}
-
-            {goal.startedAt && (
-              <span className="text-zinc-500">
-                Início: {new Date(goal.startedAt).toLocaleDateString("pt-BR")}
-              </span>
-            )}
-
-            {goal.completedAt && (
-              <span className="text-emerald-400">
-                Concluída em {new Date(goal.completedAt).toLocaleDateString("pt-BR")}
-              </span>
-            )}
-
-          </div>
-
-          {/* KPIs */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-
-            <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl">
-              <div className="text-xs text-zinc-400 flex items-center gap-1">
-                <BarChart3 size={12} />
-                Score
-              </div>
-              <div className="text-lg text-purple-400 font-semibold">
-                {goal.score ?? 0}
-              </div>
-            </div>
-
-            <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl">
-              <div className="text-xs text-zinc-400 flex items-center gap-1">
-                <Brain size={12} />
-                Health
-              </div>
-              <div className="text-lg text-blue-400 font-semibold">
-                {goal.healthScore ?? 0}
-              </div>
-            </div>
-
-            <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl">
-              <div className="text-xs text-zinc-400 flex items-center gap-1">
-                <ShieldAlert size={12} />
-                Risk
-              </div>
-              <div className="text-lg text-red-400 font-semibold">
-                {goal.riskLevel ?? "LOW"}
-              </div>
-            </div>
-
-            <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl">
-              <div className="text-xs text-zinc-400 flex items-center gap-1">
-                <Activity size={12} />
-                Tasks
-              </div>
-              <div className="text-lg text-zinc-300 font-semibold">
-                {doneTasks}/{totalTasks}
-              </div>
-            </div>
-
-          </div>
-
-          {/* PROGRESSO GERAL */}
-          <div>
-            <div className="flex justify-between text-xs text-zinc-400">
-              <span className="flex items-center gap-1">
-                <TrendingUp size={12} />
-                Progresso da meta
-              </span>
-              <span>{goal.progress}%</span>
-            </div>
-
-            <div className="h-2 bg-zinc-800 rounded mt-2 overflow-hidden">
-              <div
-                className="h-full bg-purple-500"
-                style={{ width: `${goal.progress}%` }}
-              />
-            </div>
-          </div>
-
-          {/* PROGRESSO DAS TASKS */}
-          {totalTasks > 0 && (
-            <div>
-              <div className="flex justify-between text-xs text-zinc-400">
-                <span className="flex items-center gap-1">
-                  <CheckSquare size={12} />
-                  Execução (tasks)
-                </span>
-                <span>{tasksProgress}%</span>
-              </div>
-
-              <div className="h-2 bg-zinc-800 rounded mt-2 overflow-hidden">
-                <div
-                  className="h-full bg-blue-500"
-                  style={{ width: `${tasksProgress}%` }}
+                <textarea
+                  value={localGoal.description || ""}
+                  onChange={(e) =>
+                    setLocalGoal({
+                      ...localGoal,
+                      description: e.target.value,
+                    })
+                  }
+                  className="text-xs text-zinc-500 bg-transparent outline-none w-full resize-none"
                 />
               </div>
+
+              <button onClick={onClose}>
+                <X size={18} className="text-zinc-400 hover:text-white" />
+              </button>
             </div>
-          )}
 
-         
-         {/* TASKS */}
-<div className="space-y-3">
+            {/* BODY */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-6">
 
-  <div className="flex items-center gap-2 text-sm text-zinc-300">
-    <Target size={14} />
-    Tarefas vinculadas
-  </div>
+              {/* STATUS CONTROLS */}
+              <div className="flex gap-2 text-xs">
 
-  {goal.tasks?.length ? (
-    <div className="space-y-2 max-h-56 overflow-auto pr-1">
+                <select
+                  value={localGoal.status}
+                  onChange={(e) =>
+                    setLocalGoal({
+                      ...localGoal,
+                      status: e.target.value as any,
+                    })
+                  }
+                  className="bg-zinc-900 border border-zinc-800 px-2 py-1 rounded text-zinc-300"
+                >
+                  <option value="ACTIVE">ACTIVE</option>
+                  <option value="PAUSED">PAUSED</option>
+                  <option value="COMPLETED">COMPLETED</option>
+                  <option value="ABANDONED">ABANDONED</option>
+                </select>
 
-      {goal.tasks.map((t) => {
-        const isDone = t.status === "DONE";
+                <select
+                  value={localGoal.priority}
+                  onChange={(e) =>
+                    setLocalGoal({
+                      ...localGoal,
+                      priority: e.target.value as any,
+                    })
+                  }
+                  className="bg-zinc-900 border border-zinc-800 px-2 py-1 rounded text-zinc-300"
+                >
+                  <option value="LOW">LOW</option>
+                  <option value="MEDIUM">MEDIUM</option>
+                  <option value="HIGH">HIGH</option>
+                </select>
 
-        return (
-          <div
-            key={t.id}
-            className="
-              group
-              flex items-center justify-between
-              gap-3
-              p-2.5
-              rounded-lg
-              border border-zinc-800
-              bg-zinc-900
-              hover:bg-zinc-800/60
-              transition
-            "
-          >
-            {/* LEFT */}
-            <div className="flex items-center gap-2 min-w-0">
-
-              {/* CHECK */}
-              <button
-                onClick={() => onToggleTask(t)} // 🔥 IMPORTANTE
-                className={`
-                  w-4 h-4 rounded border flex items-center justify-center transition
-                  ${isDone
-                    ? "bg-purple-500 border-purple-500"
-                    : "border-zinc-600 hover:border-purple-400"}
-                `}
-              >
-                {isDone && (
-                  <div className="w-2 h-2 bg-white rounded-sm" />
+                {localGoal.dueDate && (
+                  <span className="flex items-center gap-1 text-zinc-400">
+                    <Calendar size={12} />
+                    {new Date(localGoal.dueDate).toLocaleDateString("pt-BR")}
+                  </span>
                 )}
+              </div>
+
+              {/* KPI CARDS */}
+              <div className="grid grid-cols-2 gap-3">
+
+                <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
+                  <BarChart3 size={14} className="text-purple-400" />
+                  <p className="text-xs text-zinc-400">Score</p>
+                  <p className="text-white">{localGoal.score ?? 0}</p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
+                  <Brain size={14} className="text-blue-400" />
+                  <p className="text-xs text-zinc-400">Health</p>
+                  <p className="text-white">{localGoal.healthScore ?? 0}</p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
+                  <ShieldAlert size={14} className="text-red-400" />
+                  <p className="text-xs text-zinc-400">Risk</p>
+                  <p className="text-white">{localGoal.riskLevel ?? "LOW"}</p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-zinc-900 border border-zinc-800">
+                  <Activity size={14} className="text-green-400" />
+                  <p className="text-xs text-zinc-400">Tasks</p>
+                  <p className="text-white">
+                    {localGoal.tasks?.filter(t => t.status === "DONE").length ?? 0}
+                    /{localGoal.tasks?.length ?? 0}
+                  </p>
+                </div>
+
+              </div>
+
+              {/* TASKS */}
+              <div className="space-y-3">
+
+                <div className="flex items-center gap-2 text-sm text-zinc-300">
+                  <Target size={14} />
+                  Tarefas
+                </div>
+
+                {localGoal.tasks?.map((t, i) => {
+                  const done = t.status === "DONE";
+
+                  return (
+                    <div
+                      key={t.id}
+                      className="
+                        p-3 rounded-xl
+                        bg-zinc-900
+                        border border-zinc-800
+                        space-y-2
+                      "
+                    >
+
+                      <input
+                        value={t.title}
+                        onChange={(e) =>
+                          updateTask(i, "title", e.target.value)
+                        }
+                        className={`w-full bg-transparent outline-none text-sm ${
+                          done ? "line-through text-zinc-500" : "text-white"
+                        }`}
+                      />
+
+                      <textarea
+                        value={t.description || ""}
+                        onChange={(e) =>
+                          updateTask(i, "description", e.target.value)
+                        }
+                        className="w-full text-xs bg-zinc-950 border border-zinc-800 rounded p-2 text-zinc-300"
+                      />
+
+                      <div className="flex gap-2 text-xs">
+
+                        <select
+                          value={t.status}
+                          onChange={(e) =>
+                            updateTask(i, "status", e.target.value)
+                          }
+                          className="bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-zinc-300"
+                        >
+                          <option value="TODO">TODO</option>
+                          <option value="IN_PROGRESS">IN_PROGRESS</option>
+                          <option value="DONE">DONE</option>
+                        </select>
+
+                        <select
+                          value={t.priority}
+                          onChange={(e) =>
+                            updateTask(i, "priority", e.target.value)
+                          }
+                          className="bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-zinc-300"
+                        >
+                          <option value="LOW">LOW</option>
+                          <option value="MEDIUM">MEDIUM</option>
+                          <option value="HIGH">HIGH</option>
+                        </select>
+
+                      </div>
+
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* FOOTER */}
+            <div className="p-5 border-t border-zinc-800 flex justify-end gap-2">
+
+              <button
+                onClick={onClose}
+                className="px-4 py-2 text-sm text-zinc-400"
+              >
+                Cancelar
               </button>
 
-              {/* TITLE */}
-              <span
-                className={`
-                  text-xs truncate
-                  ${isDone
-                    ? "line-through text-zinc-500"
-                    : "text-zinc-200"}
-                `}
+              <button
+                onClick={saveAll}
+                disabled={saving}
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-white text-sm flex items-center gap-2"
               >
-                {t.title}
-              </span>
+                <Save size={14} />
+                {saving ? "Salvando..." : "Salvar"}
+              </button>
 
             </div>
 
-            {/* RIGHT STATUS */}
-            <span
-              className={`
-                text-[10px] px-2 py-0.5 rounded-full
-                ${t.status === "DONE" && "bg-emerald-500/10 text-emerald-400"}
-                ${t.status === "IN_PROGRESS" && "bg-blue-500/10 text-blue-400"}
-                ${t.status === "TODO" && "bg-zinc-700 text-zinc-400"}
-              `}
-            >
-              {t.status}
-            </span>
-          </div>
-        );
-      })}
-
-    </div>
-  ) : (
-    <div className="text-xs text-zinc-500 p-3 border border-zinc-800 rounded">
-      Nenhuma tarefa vinculada a esta meta
-    </div>
-  )}
-</div>
-
+          </motion.div>
         </div>
-      </motion.div>
+      )}
     </AnimatePresence>
   );
 }

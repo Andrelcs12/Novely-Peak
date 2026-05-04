@@ -3,29 +3,88 @@ import { TaskDto } from './dto/task.dto';
 import { PrismaService } from '@/prisma.service';
 import { TaskStatus } from '../../../generated/prisma/enums';
 import { GoalsService } from '../goals/goals.service';
+import { StreakService } from '../streak/streak.service';
 
 @Injectable()
 export class TasksService {
   constructor(
   private prisma: PrismaService,
-  private goalsService: GoalsService, // 🔥 aqui
+  private goalsService: GoalsService,
+  private streakService: StreakService, // 🔥 aqui
 ) {}
 
   // =========================
   // LIST
   // =========================
-  async findAll(userId: string) {
-    return this.prisma.task.findMany({
-      where: {
-        userId,
-        archivedAt: null,
+  // =========================
+// LIST
+// =========================
+async findAll(userId: string, period?: string) {
+  const where: any = {
+    userId,
+    archivedAt: null,
+  };
+
+  const now = new Date();
+
+  if (period === "today") {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    where.OR = [
+      {
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
       },
-      orderBy: [
-        { status: 'asc' },
-        { createdAt: 'desc' },
-      ],
-    });
+      {
+        dueDate: {
+          gte: start,
+          lte: end,
+        },
+      },
+    ];
   }
+
+  if (period === "7d") {
+    const start = new Date();
+    start.setDate(start.getDate() - 7);
+
+    where.completedAt = {
+      gte: start,
+      lte: now,
+    };
+
+    where.status = "DONE";
+  }
+
+  if (period === "overdue") {
+    where.dueDate = {
+      lt: now,
+    };
+
+    where.status = {
+      not: "DONE",
+    };
+  }
+
+  // "all" ou undefined → não filtra nada
+
+  return this.prisma.task.findMany({
+    where,
+    orderBy: [
+      { status: "asc" },
+      { priority: "desc" },
+      { createdAt: "desc" },
+    ],
+  });
+}
+
+
 
   // =========================
   // FIND ONE (secure)
@@ -41,7 +100,37 @@ export class TasksService {
 
     return task;
   }
-  
+
+  async toggleStatus(id: string, userId: string, status: TaskStatus) {
+  await this.ensureOwnership(id, userId);
+
+  if (!Object.values(TaskStatus).includes(status)) {
+    throw new BadRequestException('Status inválido');
+  }
+
+  const task = await this.prisma.task.update({
+    where: { id },
+    data: {
+      status,
+      completedAt: status === TaskStatus.DONE ? new Date() : null,
+      ...(status === TaskStatus.IN_PROGRESS && { startedAt: new Date() }),
+    },
+  });
+
+  // 🔥 META
+  if (task.goalId) {
+    await this.goalsService.recalcGoalProgress(task.goalId);
+  }
+
+  // =========================
+  // 🔥🔥 STREAK (AQUI É O CORE)
+  // =========================
+  const progress = await this.streakService.calculateDailyProgress(userId);
+
+  await this.streakService.update(userId, { progress });
+
+  return task;
+}
 
   // =========================
   // CREATE (business rules)
@@ -107,32 +196,6 @@ export class TasksService {
     });
   }
 
-  // =========================
-  // TOGGLE STATUS (SMART RULES)
-  // Rota: PATCH /tasks/:id/status
-  // Body: { status: "TODO" | "IN_PROGRESS" | "DONE" }
-  // =========================
-  async toggleStatus(id: string, userId: string, status: TaskStatus) {
-    await this.ensureOwnership(id, userId);
-
-    if (!Object.values(TaskStatus).includes(status)) {
-      throw new BadRequestException('Status inválido');
-    }
-
-    const completedAt = status === TaskStatus.DONE ? new Date() : null;
-    const startedAt =
-      status === TaskStatus.IN_PROGRESS ? new Date() : undefined;
-
-    return this.prisma.task.update({
-      where: { id },
-      data: {
-        status,
-        completedAt,
-        // Registra quando a tarefa foi iniciada (analytics futuro)
-        ...(startedAt !== undefined && { startedAt }),
-      },
-    });
-  }
 
   // =========================
   // DELETE (soft delete)

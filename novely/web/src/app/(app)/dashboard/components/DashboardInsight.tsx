@@ -29,7 +29,8 @@ export default function DashboardInsight({
         bg: "bg-yellow-500/10",
         border: "border-yellow-500/30",
         title: "Sem execução iniciada",
-        message: "Defina uma tarefa simples e execute agora.",
+        message:
+          "Você ainda não iniciou o dia. Defina uma tarefa simples para gerar tração.",
         action: "Criar tarefa",
       };
     }
@@ -41,8 +42,9 @@ export default function DashboardInsight({
         bg: "bg-red-500/10",
         border: "border-red-500/30",
         title: "Execução travada",
-        message: "Você começou, mas não finalizou. Conclua a primeira tarefa.",
-        action: "Ver tarefas",
+        message:
+          "Tarefas iniciadas, mas nenhuma concluída. Finalize uma agora para destravar o ritmo.",
+        action: "Finalizar tarefa",
       };
     }
 
@@ -52,9 +54,10 @@ export default function DashboardInsight({
         color: "text-yellow-400",
         bg: "bg-yellow-500/10",
         border: "border-yellow-500/30",
-        title: "Progresso parcial",
-        message: "Pare de iniciar novas tarefas. Termine as atuais.",
-        action: "Continuar execução",
+        title: "Baixa eficiência",
+        message:
+          "Você está iniciando mais do que finalizando. Priorize concluir antes de começar novas tarefas.",
+        action: "Focar nas pendentes",
       };
     }
 
@@ -64,9 +67,10 @@ export default function DashboardInsight({
         color: "text-blue-400",
         bg: "bg-blue-500/10",
         border: "border-blue-500/30",
-        title: "Bom ritmo",
-        message: "Continue focado. Evite distrações agora.",
-        action: "Ver tarefas",
+        title: "Ritmo consistente",
+        message:
+          "Bom progresso até aqui. Continue executando sem alternar contexto desnecessariamente.",
+        action: "Continuar execução",
       };
     }
 
@@ -76,7 +80,8 @@ export default function DashboardInsight({
       bg: "bg-green-500/10",
       border: "border-green-500/30",
       title: "Alta performance",
-      message: "Execução forte hoje. Continue consistente.",
+      message:
+        "Alto nível de execução. Mantenha o foco para fechar o dia com consistência.",
       action: "Revisar tarefas",
     };
   };
@@ -93,7 +98,6 @@ export default function DashboardInsight({
     >
       <div className="flex items-start gap-4">
 
-        {/* ICON */}
         <div
           className={`
             w-11 h-11 flex items-center justify-center rounded-xl
@@ -103,7 +107,6 @@ export default function DashboardInsight({
           <Icon size={20} />
         </div>
 
-        {/* CONTENT */}
         <div className="flex-1">
 
           <div className="text-sm text-zinc-400">
@@ -120,7 +123,7 @@ export default function DashboardInsight({
 
           <button
             onClick={() => router.push("/tasks")}
-            className="mt-3 cursor-pointer text-xs text-purple-400 hover:text-purple-300 transition"
+            className="mt-3 text-xs text-purple-400 hover:text-purple-300 transition"
           >
             {insight.action} →
           </button>

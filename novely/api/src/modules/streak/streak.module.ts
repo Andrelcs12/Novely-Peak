@@ -4,9 +4,11 @@ import { StreakController } from "./streak.controller";
 import { PrismaService } from "@/prisma.service";
 import { StreakEventsModule } from "../streak-events/streak-events.module";
 
+
 @Module({
   imports: [StreakEventsModule],
   controllers: [StreakController],
   providers: [StreakService, PrismaService],
+  exports: [StreakService], // 👈 ESSENCIAL
 })
 export class StreakModule {}

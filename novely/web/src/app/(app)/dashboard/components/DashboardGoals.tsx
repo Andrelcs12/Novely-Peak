@@ -2,19 +2,7 @@
 
 import { Target, ArrowRight, CheckCircle2, Circle } from "lucide-react";
 import Link from "next/link";
-
-// 🔥 PADRÃO UNIFICADO (igual backend)
-type Task = {
-  id: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
-};
-
-type Goal = {
-  id: string;
-  title: string;
-  progress: number;
-  tasks: Task[];
-};
+import { Goal } from "@/app/types/goal";
 
 export default function DashboardGoals({
   goals,
@@ -70,15 +58,19 @@ export default function DashboardGoals({
       {/* LIST */}
       <div className="space-y-4">
         {activeGoals.map((goal) => {
-          const total = goal.tasks.length;
+          const tasks = goal.tasks ?? [];
 
-          const done = goal.tasks.filter(
+          const total = tasks.length;
+
+          const done = tasks.filter(
             (t) => t.status === "DONE"
           ).length;
 
+          const fallbackProgress = goal.progress ?? 0;
+
           const realProgress = total
             ? Math.round((done / total) * 100)
-            : goal.progress;
+            : fallbackProgress;
 
           return (
             <div
@@ -112,7 +104,6 @@ export default function DashboardGoals({
 
               {/* STATS */}
               <div className="flex items-center justify-between text-xs text-zinc-400">
-
                 <div className="flex items-center gap-3">
 
                   <div className="flex items-center gap-1">
@@ -128,12 +119,11 @@ export default function DashboardGoals({
                 </div>
 
                 <Link
-                  href={`/goals`}
+                  href="/goals"
                   className="text-purple-400 hover:text-purple-300 flex items-center gap-1"
                 >
                   Abrir <ArrowRight size={12} />
                 </Link>
-
               </div>
             </div>
           );
