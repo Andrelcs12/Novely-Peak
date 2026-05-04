@@ -11,6 +11,7 @@ import TaskModal from "./components/TaskCreateModal";
 import TasksFilters from "./components/TasksFilter";
 import TasksHelpModal from "./components/TaskHelpModal";
 import TasksAnalytics from "./components/TasksAnalytics";
+import TasksSkeleton from "./components/TasksSkeleton";
 
 type Filter = "ALL" | "ACTIVE" | "COMPLETED";
 
@@ -140,12 +141,7 @@ const [priority, setPriority] = useState<"ALL" | "LOW" | "MEDIUM" | "HIGH">("ALL
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center gap-2 text-zinc-400 text-sm py-10">
-        <span className="animate-pulse">●</span>
-        Carregando tarefas...
-      </div>
-    );
+    return <TasksSkeleton />
   }
 
   return (

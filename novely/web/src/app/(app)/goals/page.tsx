@@ -13,6 +13,7 @@ import GoalsAnalytics from "./components/GoalsAnalytics";
 import GoalModal from "./components/GoalsModal";
 import GoalsHelpModal from "./components/GoalsHelpModal";
 import GoalExpanded from "./components/GoalDetailPanel";
+import GoalsSkeleton from "./components/GoalsSkeleton";
 
 export default function GoalsPage() {
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -152,12 +153,7 @@ export default function GoalsPage() {
   
 
   if (loading) {
-    return (
-      <div className="flex items-center gap-2 text-zinc-400 text-sm py-10">
-        <span className="animate-pulse">●</span>
-        Carregando metas...
-      </div>
-    );
+    return <GoalsSkeleton />
   }
 
 

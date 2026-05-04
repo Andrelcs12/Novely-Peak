@@ -1,0 +1,227 @@
+Date : 2026-05-03 23:18:22
+Directory : c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely
+Total : 132 files,  23624 codes, 471 comments, 1464 blanks, all 25559 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| JSON               |          9 |     16,469 |          0 |          9 |     16,478 |
+| TypeScript JSX     |         51 |      5,038 |        235 |        892 |      6,165 |
+| TypeScript         |         56 |      1,616 |        117 |        392 |      2,125 |
+| Prisma             |          1 |        172 |         47 |         68 |        287 |
+| MS SQL             |          8 |        137 |         68 |         54 |        259 |
+| Markdown           |          2 |         91 |          2 |         43 |        136 |
+| JSON with Comments |          2 |         57 |          0 |          1 |         58 |
+| JavaScript         |          2 |         38 |          2 |          4 |         44 |
+| PostCSS            |          1 |          6 |          0 |          1 |          7 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                                   | files      | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                      |        132 |     23,624 |        471 |      1,464 |     25,559 |
+| api                                                                                                                                    |         65 |     13,951 |        219 |        475 |     14,645 |
+| api (Files)                                                                                                                            |          9 |     12,255 |          6 |         38 |     12,299 |
+| api\prisma                                                                                                                             |          9 |        309 |        115 |        122 |        546 |
+| api\prisma (Files)                                                                                                                     |          1 |        172 |         47 |         68 |        287 |
+| api\prisma\migrations                                                                                                                  |          8 |        137 |         68 |         54 |        259 |
+| api\prisma\migrations\20260427164647_init_core                                                                                         |          1 |         40 |          7 |         10 |         57 |
+| api\prisma\migrations\20260427224315_onboarding_fields                                                                                 |          1 |         16 |         17 |         10 |         43 |
+| api\prisma\migrations\20260428170512                                                                                                   |          1 |          2 |          2 |          2 |          6 |
+| api\prisma\migrations\20260429150125                                                                                                   |          1 |         17 |         12 |          6 |         35 |
+| api\prisma\migrations\20260430131749                                                                                                   |          1 |         13 |          6 |          6 |         25 |
+| api\prisma\migrations\20260430224111                                                                                                   |          1 |          3 |          3 |          3 |          9 |
+| api\prisma\migrations\20260502190143_goals_tasks_intelligence_v3                                                                       |          1 |         18 |         12 |          6 |         36 |
+| api\prisma\migrations\20260503202658_streak_system                                                                                     |          1 |         28 |          9 |         11 |         48 |
+| api\src                                                                                                                                |         45 |      1,354 |         98 |        308 |      1,760 |
+| api\src (Files)                                                                                                                        |          7 |        129 |          4 |         26 |        159 |
+| api\src\modules                                                                                                                        |         38 |      1,225 |         94 |        282 |      1,601 |
+| api\src\modules\auth                                                                                                                   |          7 |        112 |          0 |         27 |        139 |
+| api\src\modules\goals                                                                                                                  |          6 |        384 |         26 |         76 |        486 |
+| api\src\modules\goals (Files)                                                                                                          |          5 |        308 |         26 |         60 |        394 |
+| api\src\modules\goals\dto                                                                                                              |          1 |         76 |          0 |         16 |         92 |
+| api\src\modules\streak                                                                                                                 |          6 |        260 |         33 |         56 |        349 |
+| api\src\modules\streak (Files)                                                                                                         |          5 |        246 |         33 |         53 |        332 |
+| api\src\modules\streak-events                                                                                                          |          7 |         79 |          0 |         21 |        100 |
+| api\src\modules\streak\dto                                                                                                             |          1 |         14 |          0 |          3 |         17 |
+| api\src\modules\tasks                                                                                                                  |          6 |        269 |         35 |         68 |        372 |
+| api\src\modules\tasks (Files)                                                                                                          |          5 |        231 |         34 |         55 |        320 |
+| api\src\modules\tasks\dto                                                                                                              |          1 |         38 |          1 |         13 |         52 |
+| api\src\modules\user                                                                                                                   |          6 |        121 |          0 |         34 |        155 |
+| api\src\modules\user (Files)                                                                                                           |          5 |         96 |          0 |         28 |        124 |
+| api\src\modules\user\dto                                                                                                               |          1 |         25 |          0 |          6 |         31 |
+| api\test                                                                                                                               |          2 |         33 |          0 |          7 |         40 |
+| web                                                                                                                                    |         67 |      9,673 |        252 |        989 |     10,914 |
+| web (Files)                                                                                                                            |          8 |      4,420 |          1 |         25 |      4,446 |
+| web\src                                                                                                                                |         59 |      5,253 |        251 |        964 |      6,468 |
+| web\src\app                                                                                                                            |         56 |      5,159 |        250 |        945 |      6,354 |
+| web\src\app (Files)                                                                                                                    |          4 |        103 |          6 |         22 |        131 |
+| web\src\app\(app)                                                                                                                      |         27 |      3,671 |        158 |        636 |      4,465 |
+| web\src\app\(app) (Files)                                                                                                              |          1 |         50 |          2 |         12 |         64 |
+| web\src\app\(app)\dashboard                                                                                                            |          6 |        763 |         24 |        145 |        932 |
+| web\src\app\(app)\dashboard (Files)                                                                                                    |          1 |         76 |          0 |         18 |         94 |
+| web\src\app\(app)\dashboard\components                                                                                                 |          5 |        687 |         24 |        127 |        838 |
+| web\src\app\(app)\goals                                                                                                                |         11 |      1,527 |         68 |        254 |      1,849 |
+| web\src\app\(app)\goals (Files)                                                                                                        |          1 |        171 |          7 |         39 |        217 |
+| web\src\app\(app)\goals\components                                                                                                     |         10 |      1,356 |         61 |        215 |      1,632 |
+| web\src\app\(app)\tasks                                                                                                                |          9 |      1,331 |         64 |        225 |      1,620 |
+| web\src\app\(app)\tasks (Files)                                                                                                        |          1 |        152 |          7 |         43 |        202 |
+| web\src\app\(app)\tasks\components                                                                                                     |          8 |      1,179 |         57 |        182 |      1,418 |
+| web\src\app\(public)                                                                                                                   |          3 |         14 |          1 |         10 |         25 |
+| web\src\app\(public)\auth                                                                                                              |          1 |          5 |          0 |          4 |          9 |
+| web\src\app\(public)\onboarding                                                                                                        |          1 |          4 |          1 |          3 |          8 |
+| web\src\app\(public)\onboarding-form                                                                                                   |          1 |          5 |          0 |          3 |          8 |
+| web\src\app\auth                                                                                                                       |          1 |         36 |          2 |         10 |         48 |
+| web\src\app\auth\callback                                                                                                              |          1 |         36 |          2 |         10 |         48 |
+| web\src\app\components                                                                                                                 |         17 |      1,220 |         68 |        215 |      1,503 |
+| web\src\app\components\features                                                                                                        |         12 |        608 |         16 |        113 |        737 |
+| web\src\app\components\features\auth                                                                                                   |          4 |        238 |         11 |         52 |        301 |
+| web\src\app\components\features\onboarding                                                                                             |          3 |        116 |          4 |         26 |        146 |
+| web\src\app\components\features\onboarding-form                                                                                        |          5 |        254 |          1 |         35 |        290 |
+| web\src\app\components\layout                                                                                                          |          3 |        529 |         48 |         87 |        664 |
+| web\src\app\components\ui                                                                                                              |          2 |         83 |          4 |         15 |        102 |
+| web\src\app\types                                                                                                                      |          4 |        115 |         15 |         52 |        182 |
+| web\src\lib                                                                                                                            |          2 |         55 |          1 |         15 |         71 |
+| web\src\utils                                                                                                                          |          1 |         39 |          0 |          4 |         43 |
++----------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                                                                               | language           | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\.prettierrc                                                                | JSON               |          4 |          0 |          1 |          5 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\README.md                                                                  | Markdown           |         68 |          2 |         29 |         99 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\eslint.config.mjs                                                          | JavaScript         |         32 |          2 |          2 |         36 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\nest-cli.json                                                              | JSON               |          8 |          0 |          1 |          9 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\package-lock.json                                                          | JSON               |     12,022 |          0 |          1 |     12,023 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\package.json                                                               | JSON               |         83 |          0 |          1 |         84 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma.config.ts                                                           | TypeScript         |         11 |          2 |          2 |         15 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma\migrations\20260427164647_init_core\migration.sql                   | MS SQL             |         40 |          7 |         10 |         57 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma\migrations\20260427224315_onboarding_fields\migration.sql           | MS SQL             |         16 |         17 |         10 |         43 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma\migrations\20260428170512\migration.sql                             | MS SQL             |          2 |          2 |          2 |          6 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma\migrations\20260429150125\migration.sql                             | MS SQL             |         17 |         12 |          6 |         35 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma\migrations\20260430131749\migration.sql                             | MS SQL             |         13 |          6 |          6 |         25 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma\migrations\20260430224111\migration.sql                             | MS SQL             |          3 |          3 |          3 |          9 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma\migrations\20260502190143_goals_tasks_intelligence_v3\migration.sql | MS SQL             |         18 |         12 |          6 |         36 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma\migrations\20260503202658_streak_system\migration.sql               | MS SQL             |         28 |          9 |         11 |         48 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma\schema.prisma                                                       | Prisma             |        172 |         47 |         68 |        287 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\app.controller.spec.ts                                                 | TypeScript         |         18 |          0 |          5 |         23 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\app.controller.ts                                                      | TypeScript         |         10 |          0 |          3 |         13 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\app.module.ts                                                          | TypeScript         |         35 |          2 |          6 |         43 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\app.service.ts                                                         | TypeScript         |          7 |          0 |          2 |          9 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\main.ts                                                                | TypeScript         |         33 |          2 |          6 |         41 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\auth\auth.controller.spec.ts                                   | TypeScript         |         16 |          0 |          5 |         21 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\auth\auth.controller.ts                                        | TypeScript         |         12 |          0 |          2 |         14 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\auth\auth.guard.ts                                             | TypeScript         |         28 |          0 |          7 |         35 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\auth\auth.module.ts                                            | TypeScript         |          9 |          0 |          2 |         11 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\auth\auth.service.spec.ts                                      | TypeScript         |         14 |          0 |          5 |         19 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\auth\auth.service.ts                                           | TypeScript         |         27 |          0 |          4 |         31 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\auth\supabase.ts                                               | TypeScript         |          6 |          0 |          2 |          8 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\goals\dto\goals.dto.ts                                         | TypeScript         |         76 |          0 |         16 |         92 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\goals\goals.controller.spec.ts                                 | TypeScript         |         16 |          0 |          5 |         21 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\goals\goals.controller.ts                                      | TypeScript         |         72 |          0 |         10 |         82 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\goals\goals.module.ts                                          | TypeScript         |         10 |          0 |          1 |         11 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\goals\goals.service.spec.ts                                    | TypeScript         |         14 |          0 |          5 |         19 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\goals\goals.service.ts                                         | TypeScript         |        196 |         26 |         39 |        261 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak-events\streak-events.controller.spec.ts                 | TypeScript         |         16 |          0 |          5 |         21 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak-events\streak-events.controller.ts                      | TypeScript         |          6 |          0 |          2 |          8 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak-events\streak-events.listener.ts                        | TypeScript         |         18 |          0 |          5 |         23 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak-events\streak-events.module.ts                          | TypeScript         |         10 |          0 |          1 |         11 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak-events\streak-events.service.spec.ts                    | TypeScript         |         14 |          0 |          5 |         19 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak-events\streak-events.service.ts                         | TypeScript         |         10 |          0 |          3 |         13 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak-events\streak-events.types.ts                           | TypeScript         |          5 |          0 |          0 |          5 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\dto\streak.dto.ts                                       | TypeScript         |         14 |          0 |          3 |         17 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.controller.spec.ts                               | TypeScript         |         16 |          0 |          5 |         21 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.controller.ts                                    | TypeScript         |         25 |          6 |          4 |         35 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.module.ts                                        | TypeScript         |         11 |          0 |          1 |         12 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.service.spec.ts                                  | TypeScript         |         14 |          0 |          5 |         19 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.service.ts                                       | TypeScript         |        180 |         27 |         38 |        245 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\tasks\dto\task.dto.ts                                          | TypeScript         |         38 |          1 |         13 |         52 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\tasks\tasks.controller.spec.ts                                 | TypeScript         |         16 |          0 |          5 |         21 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\tasks\tasks.controller.ts                                      | TypeScript         |         56 |          6 |         10 |         72 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\tasks\tasks.module.ts                                          | TypeScript         |         11 |          0 |          2 |         13 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\tasks\tasks.service.spec.ts                                    | TypeScript         |         14 |          0 |          5 |         19 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\tasks\tasks.service.ts                                         | TypeScript         |        134 |         28 |         33 |        195 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\user\dto\user.dto.ts                                           | TypeScript         |         25 |          0 |          6 |         31 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\user\user.controller.spec.ts                                   | TypeScript         |         16 |          0 |          5 |         21 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\user\user.controller.ts                                        | TypeScript         |         17 |          0 |          3 |         20 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\user\user.module.ts                                            | TypeScript         |          9 |          0 |          2 |         11 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\user\user.service.spec.ts                                      | TypeScript         |         14 |          0 |          5 |         19 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\user\user.service.ts                                           | TypeScript         |         40 |          0 |         13 |         53 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\prisma.service.ts                                                      | TypeScript         |         12 |          0 |          1 |         13 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\supabase.provider.ts                                                   | TypeScript         |         14 |          0 |          3 |         17 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\test\app.e2e-spec.ts                                                       | TypeScript         |         24 |          0 |          6 |         30 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\test\jest-e2e.json                                                         | JSON               |          9 |          0 |          1 |         10 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\tsconfig.build.json                                                        | JSON               |          4 |          0 |          1 |          5 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\tsconfig.json                                                              | JSON with Comments |         23 |          0 |          0 |         23 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\README.md                                                                  | Markdown           |         23 |          0 |         14 |         37 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\biome.json                                                                 | JSON               |         37 |          0 |          1 |         38 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\next.config.ts                                                             | TypeScript         |          5 |          1 |          3 |          9 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\package-lock.json                                                          | JSON               |      4,267 |          0 |          1 |      4,268 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\package.json                                                               | JSON               |         35 |          0 |          1 |         36 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\postcss.config.mjs                                                         | JavaScript         |          6 |          0 |          2 |          8 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\dashboard\components\DashboardGoals.tsx                      | TypeScript JSX     |        113 |          6 |         25 |        144 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\dashboard\components\DashboardInsight.tsx                    | TypeScript JSX     |        113 |          2 |         18 |        133 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\dashboard\components\DashboardKPIs.tsx                       | TypeScript JSX     |         74 |          3 |         23 |        100 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\dashboard\components\DashboardTasks.tsx                      | TypeScript JSX     |        213 |          8 |         35 |        256 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\dashboard\components\StreakIntro.tsx                         | TypeScript JSX     |        174 |          5 |         26 |        205 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\dashboard\page.tsx                                           | TypeScript JSX     |         76 |          0 |         18 |         94 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalDetailPanel.tsx                         | TypeScript JSX     |        235 |         12 |         41 |        288 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalFormFields.tsx                          | TypeScript JSX     |        116 |          5 |         13 |        134 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalsAnalytics.tsx                          | TypeScript JSX     |        118 |          3 |         22 |        143 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalsFilter.tsx                             | TypeScript JSX     |         88 |          3 |         12 |        103 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalsHeader.tsx                             | TypeScript JSX     |         31 |          0 |          7 |         38 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalsHelpModal.tsx                          | TypeScript JSX     |        134 |          7 |         19 |        160 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalsList.tsx                               | TypeScript JSX     |        206 |          8 |         33 |        247 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalsModal.tsx                              | TypeScript JSX     |        165 |         10 |         23 |        198 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalsStats.tsx                              | TypeScript JSX     |         54 |          1 |         16 |         71 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoaltasksEditor.tsx                         | TypeScript JSX     |        209 |         12 |         29 |        250 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\page.tsx                                               | TypeScript JSX     |        171 |          7 |         39 |        217 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\layout.tsx                                                   | TypeScript JSX     |         50 |          2 |         12 |         64 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TaskCreateModal.tsx                         | TypeScript JSX     |        203 |          8 |         30 |        241 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TaskHeader.tsx                              | TypeScript JSX     |         55 |          3 |          8 |         66 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TaskHelpModal.tsx                           | TypeScript JSX     |        121 |          8 |         15 |        144 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TaskList.tsx                                | TypeScript JSX     |        126 |          8 |         16 |        150 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TaskModalForm.tsx                           | TypeScript JSX     |        270 |         13 |         44 |        327 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TaskStats.tsx                               | TypeScript JSX     |        215 |         12 |         42 |        269 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TasksAnalytics.tsx                          | TypeScript JSX     |        143 |          4 |         19 |        166 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TasksFilter.tsx                             | TypeScript JSX     |         46 |          1 |          8 |         55 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\page.tsx                                               | TypeScript JSX     |        152 |          7 |         43 |        202 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(public)\auth\page.tsx                                             | TypeScript JSX     |          5 |          0 |          4 |          9 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(public)\onboarding-form\page.tsx                                  | TypeScript JSX     |          5 |          0 |          3 |          8 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(public)\onboarding\page.tsx                                       | TypeScript JSX     |          4 |          1 |          3 |          8 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\auth\callback\page.tsx                                             | TypeScript JSX     |         36 |          2 |         10 |         48 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\auth\AuthContainer.tsx                         | TypeScript JSX     |         80 |          6 |         16 |        102 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\auth\LoginForm.tsx                             | TypeScript JSX     |         49 |          1 |         13 |         63 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\auth\SignupForm.tsx                            | TypeScript JSX     |         62 |          1 |         17 |         80 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\auth\SocialButtons.tsx                         | TypeScript JSX     |         47 |          3 |          6 |         56 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\onboarding-form\OnboardingFormContainer.tsx    | TypeScript JSX     |         96 |          1 |         16 |        113 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\onboarding-form\OnboardingProgress.tsx         | TypeScript JSX     |         20 |          0 |          1 |         21 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\onboarding-form\StepDiscipline.tsx             | TypeScript JSX     |         57 |          0 |          6 |         63 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\onboarding-form\StepGoal.tsx                   | TypeScript JSX     |         41 |          0 |          6 |         47 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\onboarding-form\StepWorkStyle.tsx              | TypeScript JSX     |         40 |          0 |          6 |         46 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\onboarding\OnboardingContainer.tsx             | TypeScript JSX     |         66 |          2 |         13 |         81 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\onboarding\OnboardingDots.tsx                  | TypeScript JSX     |         22 |          0 |          4 |         26 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\features\onboarding\OnboardingStep.tsx                  | TypeScript JSX     |         28 |          2 |          9 |         39 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\layout\CommandMenu.tsx                                  | TypeScript JSX     |         99 |          9 |         15 |        123 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\layout\Header.tsx                                       | TypeScript JSX     |        169 |         11 |         37 |        217 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\layout\Sidebar.tsx                                      | TypeScript JSX     |        261 |         28 |         35 |        324 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\ui\StatCard.tsx                                         | TypeScript JSX     |         52 |          2 |          9 |         63 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\ui\loading.tsx                                          | TypeScript JSX     |         31 |          2 |          6 |         39 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\globals.css                                                        | PostCSS            |          6 |          0 |          1 |          7 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\layout.tsx                                                         | TypeScript JSX     |         39 |          0 |          5 |         44 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\loading.tsx                                                        | TypeScript JSX     |         20 |          2 |          5 |         27 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\page.tsx                                                           | TypeScript JSX     |         38 |          4 |         11 |         53 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\types\goal.ts                                                      | TypeScript         |         72 |         15 |         34 |        121 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\types\onboarding.ts                                                | TypeScript         |         12 |          0 |          2 |         14 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\types\task.ts                                                      | TypeScript         |         13 |          0 |          9 |         22 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\types\user.ts                                                      | TypeScript         |         18 |          0 |          7 |         25 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\lib\api.ts                                                             | TypeScript         |         50 |          1 |         14 |         65 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\lib\supabase.ts                                                        | TypeScript         |          5 |          0 |          1 |          6 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\utils\format.ts                                                        | TypeScript         |         39 |          0 |          4 |         43 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\tailwind.config.ts                                                         | TypeScript         |         13 |          0 |          2 |         15 |
+| c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\tsconfig.json                                                              | JSON with Comments |         34 |          0 |          1 |         35 |
+| Total                                                                                                                                  |                    |     23,624 |        471 |      1,464 |     25,559 |
++----------------------------------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

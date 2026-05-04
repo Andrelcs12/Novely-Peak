@@ -3,14 +3,13 @@
 import {
   Menu,
   Bell,
-  User2,
   Flame,
-  HelpCircle,
 } from "lucide-react";
 
 import { User } from "@/app/types/user";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
 import StreakIntro from "@/app/(app)/dashboard/components/StreakIntro";
 import { api } from "@/lib/api";
 
@@ -18,6 +17,7 @@ type Props = {
   user: User;
   onMenuClick: () => void;
   actions?: React.ReactNode;
+  onOpenCommand: () => void;
 };
 
 type Streak = {
@@ -26,92 +26,84 @@ type Streak = {
   status: "ACTIVE" | "BROKEN" | "FROZEN";
 };
 
-export default function Header({ user, onMenuClick, actions }: Props) {
+export default function Header({
+  user,
+  onMenuClick,
+  actions,
+  onOpenCommand,
+}: Props) {
   const [now, setNow] = useState(new Date());
-  const [streak, setStreak] = useState<Streak | null>(null);
-  const [prevStreak, setPrevStreak] = useState<number>(0);
+
+  const [streak, setStreak] = useState<Streak>({
+    current: 0,
+    best: 0,
+    status: "ACTIVE",
+  });
+
   const [showIntro, setShowIntro] = useState(false);
   const [shake, setShake] = useState(false);
-  const [float, setFloat] = useState(false);
 
-  // 🔊 SONS
   const sounds = {
     up: new Audio("/sounds/streak-up.mp3"),
     broken: new Audio("/sounds/streak-broken.mp3"),
     warning: new Audio("/sounds/streak-warning.mp3"),
   };
 
-  // clock
+  // CLOCK
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
+  // LOAD STREAK
   const loadStreak = async () => {
-  try {
-    const res = await api.get("/streak/me");
-    setStreak(res); // ❌ não use .data
-  } catch (e) {
-    console.error(e);
-  }
-};
+    try {
+      const res = await api.get("/streak/me");
+
+      setStreak({
+        current: res?.current ?? 0,
+        best: res?.best ?? 0,
+        status: res?.status ?? "ACTIVE",
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     loadStreak();
   }, []);
 
-  // 🔥 LISTENER REAL UPDATE
+  // REALTIME LISTENER
   useEffect(() => {
     const handler = async () => {
-      const res = await api.get("/streak/me");
-      const newStreak = res.data;
+      try {
+        const res = await api.get("/streak/me");
 
-      setStreak((prev) => {
-        if (prev && newStreak.current > prev.current) {
-          triggerEffects("UP");
-        }
+        setStreak((prev) => {
+          if (res.current > prev.current) {
+            sounds.up.play();
+            setShake(true);
+            setTimeout(() => setShake(false), 500);
+          }
 
-        if (prev && newStreak.status === "BROKEN") {
-          triggerEffects("BROKEN");
-        }
+          if (res.status === "BROKEN") sounds.broken.play();
+          if (res.status === "FROZEN") sounds.warning.play();
 
-        if (prev && newStreak.status === "FROZEN") {
-          triggerEffects("WARNING");
-        }
-
-        return newStreak;
-      });
+          return {
+            current: res.current ?? 0,
+            best: res.best ?? 0,
+            status: res.status ?? "ACTIVE",
+          };
+        });
+      } catch (err) {
+        console.error(err);
+      }
     };
 
     window.addEventListener("streak_updated", handler);
-
-    return () => {
-      window.removeEventListener("streak_updated", handler);
-    };
+    return () => window.removeEventListener("streak_updated", handler);
   }, []);
-
-  // 🎯 EFFECT ENGINE
-  const triggerEffects = (type: "UP" | "BROKEN" | "WARNING") => {
-    if (type === "UP") {
-      sounds.up.play();
-
-      setFloat(true);
-      setShake(true);
-
-      setTimeout(() => setFloat(false), 1200);
-      setTimeout(() => setShake(false), 600);
-    }
-
-    if (type === "BROKEN") {
-      sounds.broken.play();
-      setShake(true);
-      setTimeout(() => setShake(false), 800);
-    }
-
-    if (type === "WARNING") {
-      sounds.warning.play();
-    }
-  };
 
   const formattedDate = now.toLocaleDateString("pt-BR", {
     weekday: "long",
@@ -152,73 +144,46 @@ export default function Header({ user, onMenuClick, actions }: Props) {
 
           {actions}
 
-          {/* 🔥 STREAK */}
-          <motion.div
-            animate={{
-              scale: shake ? [1, 1.1, 0.95, 1] : 1,
-            }}
-            transition={{ duration: 0.4 }}
-            className="relative flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20 overflow-hidden"
+          {/* ➕ COMMAND BUTTON */}
+          <button
+            onClick={onOpenCommand}
+            className="w-9 h-9 flex items-center justify-center rounded-full 
+                       bg-zinc-900 border border-purple-500/30 text-white
+                       hover:bg-zinc-800 transition"
           >
+            +
+          </button>
 
-            {/* glow pulse */}
+          {/* STREAK */}
+          <motion.div
+            onClick={() => setShowIntro(true)}
+            whileTap={{ scale: 0.95 }}
+            animate={{ scale: shake ? [1, 1.1, 0.95, 1] : 1 }}
+            transition={{ duration: 0.4 }}
+            className="cursor-pointer relative flex items-center gap-2 px-3 py-2 rounded-lg 
+                       bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition"
+          >
             <AnimatePresence>
-              {float && (
+              {shake && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.6, y: 0 }}
-                  animate={{ opacity: 0.4, scale: 1.6, y: -20 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.4 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.8 }}
                   className="absolute inset-0 bg-orange-400 blur-xl"
                 />
               )}
             </AnimatePresence>
 
-            {/* flame float effect */}
-            <AnimatePresence>
-              {float && (
-                <motion.div
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: -20, opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.8 }}
-                  className="absolute left-2 top-0"
-                >
-                  🔥
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             <Flame size={18} className="text-orange-400 z-10" />
 
-            {/* streak number */}
-            <div className="relative h-4 overflow-hidden z-10">
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={streak?.current}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -10, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-xs text-orange-300 font-semibold block"
-                >
-                  {streak?.current ?? 0}
-                </motion.span>
-              </AnimatePresence>
-            </div>
+            <span className="text-xs text-orange-300 font-semibold z-10">
+              {streak.current}
+            </span>
 
             <span className="text-xs text-orange-300 z-10">
               dias
             </span>
           </motion.div>
-
-          {/* HELP */}
-          <button
-            onClick={() => setShowIntro(true)}
-            className="p-1 rounded-md hover:bg-zinc-800"
-          >
-            <HelpCircle size={14} className="text-zinc-500 hover:text-white" />
-          </button>
 
           {/* NOTIFICATIONS */}
           <button className="relative w-9 h-9 flex items-center justify-center rounded-full bg-zinc-900 border border-purple-500/30">
@@ -230,19 +195,17 @@ export default function Header({ user, onMenuClick, actions }: Props) {
           <div className="w-9 h-9 rounded-full overflow-hidden border border-purple-600 bg-zinc-800 flex items-center justify-center">
             {user?.avatar ? (
               <img src={user.avatar} className="w-full h-full object-cover" />
-            ) : user?.name ? (
-              <span className="text-xs text-purple-400 font-semibold">
-                {user.name[0]}
-              </span>
             ) : (
-              <User2 size={16} className="text-zinc-500" />
+              <span className="text-xs text-purple-400 font-semibold">
+                {user?.name?.[0]}
+              </span>
             )}
           </div>
 
         </div>
       </header>
 
-      {/* INTRO */}
+      {/* STREAK MODAL */}
       <StreakIntro open={showIntro} onClose={() => setShowIntro(false)} />
     </>
   );

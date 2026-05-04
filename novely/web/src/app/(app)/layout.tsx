@@ -5,6 +5,9 @@ import { api } from "@/lib/api";
 
 import Sidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
+import BottomBar from "../components/layout/BottomBar";
+import CommandMenu from "../components/layout/CommandMenu";
+
 import { User } from "@/app/types/user";
 import Loading from "../components/ui/loading";
 
@@ -15,7 +18,9 @@ export default function AppLayout({
 }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
+
+  const [openSidebar, setOpenSidebar] = useState(false);
+  const [openCommand, setOpenCommand] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -33,8 +38,8 @@ export default function AppLayout({
   }, []);
 
   if (loading || !user) {
-  return <Loading fullScreen text="Carregando Informações..." />;
-}
+    return <Loading fullScreen text="Carregando Informações..." />;
+  }
 
   return (
     <div className="flex h-screen bg-zinc-950 text-white overflow-hidden">
@@ -42,8 +47,8 @@ export default function AppLayout({
       {/* SIDEBAR */}
       <Sidebar
         user={user}
-        isOpen={open}
-        onClose={() => setOpen(false)}
+        isOpen={openSidebar}
+        onClose={() => setOpenSidebar(false)}
       />
 
       {/* CONTENT */}
@@ -51,14 +56,24 @@ export default function AppLayout({
 
         <Header
           user={user}
-          onMenuClick={() => setOpen(true)}
+          onMenuClick={() => setOpenSidebar(true)}
+          onOpenCommand={() => setOpenCommand(true)}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6">
           {children}
         </main>
 
       </div>
+
+      {/* MOBILE NAV */}
+      <BottomBar onOpenCommand={() => setOpenCommand(true)} />
+
+      {/* GLOBAL COMMAND MENU */}
+      <CommandMenu
+        open={openCommand}
+        onClose={() => setOpenCommand(false)}
+      />
     </div>
   );
 }

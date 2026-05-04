@@ -70,11 +70,6 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 text-white">
 
-      <DashboardToday
-        tasks={tasks}
-        onReload={load}
-        todayState={today}
-      />
 
       <DashboardKPIs
         tasks={tasks.length}
