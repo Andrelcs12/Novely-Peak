@@ -41,8 +41,8 @@ export default function OnboardingContainer() {
   return (
   <div className="min-h-[100dvh] bg-white flex flex-col items-center px-6 md:px-16 py-10 relative overflow-hidden">
     {/* BACKGROUND BLURS */}
-<div className="absolute -top-20 -left-30 w-60 h-60 md:w-96 md:h-96 bg-purple-800/30 rounded-full " />
-<div className="absolute -top-10 left-10 md:left-40 w-40 h-40 md:w-72 md:h-72 bg-purple-800/20 rounded-full " />
+<div className="absolute -top-20 z-20 -left-30 w-60 h-60 md:w-96 md:h-96 bg-purple-800/30 rounded-full " />
+<div className="absolute -top-10 z-20 left-10 md:left-40 w-40 h-40 md:w-72 md:h-72 bg-purple-800/20 rounded-full " />
 
 
 

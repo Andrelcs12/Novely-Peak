@@ -13,7 +13,7 @@ export default function OnboardingStep({ data }: Props) {
     <div className="flex flex-col md:flex-row items-center justify-center gap-10 w-full max-w-5xl">
       
       {/* IMAGEM */}
-      <div className="flex justify-center w-full md:w-1/2">
+      <div className="flex justify-center w-full md:w-1/2 z-10">
         <img
           src={data.image}
           alt={data.title}

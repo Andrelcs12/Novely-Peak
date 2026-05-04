@@ -39,7 +39,7 @@ export default function SignupForm() {
 
   <input
     placeholder="Nome"
-    className=" w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl text-gray-800  placeholder:text-gray-400 focus:outline-none  focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition"
+    className=" w-full pl-10 pr-3 py-3 border border-purple-400 rounded-xl text-gray-800  placeholder:text-gray-400 focus:outline-none  focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition"
     value={name}
     onChange={(e) => setName(e.target.value)}
   />
@@ -50,7 +50,7 @@ export default function SignupForm() {
 
   <input
     placeholder="Email"
-    className=" w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl text-gray-800  placeholder:text-gray-400 focus:outline-none  focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition"
+    className=" w-full pl-10 pr-3 py-3 border border-purple-400 rounded-xl text-gray-800  placeholder:text-gray-400 focus:outline-none  focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition"
     value={email}
     onChange={(e) => setEmail(e.target.value)}
   />
@@ -62,7 +62,7 @@ export default function SignupForm() {
   <input
     type="password"
     placeholder="Senha"
-    className=" w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl text-gray-800  placeholder:text-gray-400 focus:outline-none  focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition"
+    className=" w-full pl-10 pr-3 py-3 border border-purple-400 rounded-xl text-gray-800  placeholder:text-gray-400 focus:outline-none  focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition"
     value={password}
     onChange={(e) => setPassword(e.target.value)}
   />
