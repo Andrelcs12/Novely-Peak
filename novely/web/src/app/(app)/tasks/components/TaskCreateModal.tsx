@@ -138,6 +138,7 @@ export default function TaskCreateModal({
     } catch {
       setError("Erro ao excluir");
     } finally {
+      
       setLoading(false);
     }
   };

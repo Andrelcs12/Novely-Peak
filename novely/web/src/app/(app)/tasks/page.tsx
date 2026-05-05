@@ -101,7 +101,13 @@ export default function TasksPage() {
         status: newStatus,
       });
 
-      window.dispatchEvent(new Event("streak_updated"));
+      const progressRes = await api.get("/streak/today");
+
+await api.post("/streak/update", {
+  progress: progressRes.data.progress,
+});
+
+window.dispatchEvent(new Event("streak_updated"));
     } catch {
       setTasks((prev) =>
         prev.map((t) =>
