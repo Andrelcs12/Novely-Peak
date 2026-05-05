@@ -185,14 +185,16 @@ export default function GoalsPage() {
               setGoals((p) => p.filter((g) => g.id !== goal.id));
               await api.delete(`/goals/${goal.id}`);
             }}
-            onToggleComplete={async (goal) => {
-              await api.patch(`/goals/${goal.id}/status`, {
-                status:
-                  goal.status === "COMPLETED" ? "ACTIVE" : "COMPLETED",
-              });
+           onToggleComplete={async (goal) => {
+  const nextStatus =
+    goal.status === "COMPLETED" ? "ACTIVE" : "COMPLETED";
 
-              loadGoals();
-            }}
+  await api.patch(`/goals/${goal.id}/status`, {
+    status: nextStatus,
+  });
+
+  loadGoals();
+}}
             onOpen={(goal) => setExpandedGoal(goal)}
           />
         </div>

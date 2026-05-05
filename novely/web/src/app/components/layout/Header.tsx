@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  Menu,
-  Bell,
-  Flame,
-} from "lucide-react";
-
+import { Menu, Bell, Flame } from "lucide-react";
 import { User } from "@/app/types/user";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
 import StreakIntro from "@/app/(app)/dashboard/components/StreakIntro";
 import { api } from "@/lib/api";
 
@@ -40,6 +34,8 @@ export default function Header({
     status: "ACTIVE",
   });
 
+  const lastPlayedRef = useRef<number | null>(null); // 🔥 LOCK
+
   const [showIntro, setShowIntro] = useState(false);
   const [shake, setShake] = useState(false);
 
@@ -49,13 +45,11 @@ export default function Header({
     warning: new Audio("/sounds/streak-warning.mp3"),
   };
 
-  // CLOCK
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // LOAD STREAK
   const loadStreak = async () => {
     try {
       const res = await api.get("/streak/me");
@@ -74,27 +68,34 @@ export default function Header({
     loadStreak();
   }, []);
 
-  // REALTIME LISTENER
   useEffect(() => {
     const handler = async () => {
       try {
         const res = await api.get("/streak/me");
 
         setStreak((prev) => {
-          if (res.current > prev.current) {
+          const next = {
+            current: res.current ?? 0,
+            best: res.best ?? 0,
+            status: res.status ?? "ACTIVE",
+          };
+
+          // 🔥 SOM SÓ 1 VEZ POR VALOR NOVO
+          if (
+            next.current > prev.current &&
+            lastPlayedRef.current !== next.current
+          ) {
+            lastPlayedRef.current = next.current;
+
             sounds.up.play();
             setShake(true);
             setTimeout(() => setShake(false), 500);
           }
 
-          if (res.status === "BROKEN") sounds.broken.play();
-          if (res.status === "FROZEN") sounds.warning.play();
+          if (next.status === "BROKEN") sounds.broken.play();
+          if (next.status === "FROZEN") sounds.warning.play();
 
-          return {
-            current: res.current ?? 0,
-            best: res.best ?? 0,
-            status: res.status ?? "ACTIVE",
-          };
+          return next;
         });
       } catch (err) {
         console.error(err);
@@ -120,12 +121,8 @@ export default function Header({
     <>
       <header className="h-14 md:h-16 border-b border-purple-500/20 bg-zinc-950 flex items-center justify-between px-4 md:px-6">
 
-        {/* LEFT */}
         <div className="flex items-center gap-4">
-          <button
-            onClick={onMenuClick}
-            className="md:hidden p-2 rounded-lg hover:bg-zinc-900"
-          >
+          <button onClick={onMenuClick} className="md:hidden p-2 rounded-lg hover:bg-zinc-900">
             <Menu size={18} />
           </button>
 
@@ -139,12 +136,10 @@ export default function Header({
           </div>
         </div>
 
-        {/* RIGHT */}
         <div className="flex items-center gap-3">
 
           {actions}
 
-          {/* ➕ COMMAND BUTTON */}
           <button
             onClick={onOpenCommand}
             className="w-9 h-9 flex items-center justify-center rounded-full 
@@ -154,7 +149,6 @@ export default function Header({
             +
           </button>
 
-          {/* STREAK */}
           <motion.div
             onClick={() => setShowIntro(true)}
             whileTap={{ scale: 0.95 }}
@@ -180,18 +174,14 @@ export default function Header({
               {streak.current}
             </span>
 
-            <span className="text-xs text-orange-300 z-10">
-              dias
-            </span>
+            <span className="text-xs text-orange-300 z-10">dias</span>
           </motion.div>
 
-          {/* NOTIFICATIONS */}
           <button className="relative w-9 h-9 flex items-center justify-center rounded-full bg-zinc-900 border border-purple-500/30">
             <Bell size={16} className="text-zinc-400" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-purple-500 rounded-full" />
           </button>
 
-          {/* AVATAR */}
           <div className="w-9 h-9 rounded-full overflow-hidden border border-purple-600 bg-zinc-800 flex items-center justify-center">
             {user?.avatar ? (
               <img src={user.avatar} className="w-full h-full object-cover" />
@@ -205,7 +195,6 @@ export default function Header({
         </div>
       </header>
 
-      {/* STREAK MODAL */}
       <StreakIntro open={showIntro} onClose={() => setShowIntro(false)} />
     </>
   );

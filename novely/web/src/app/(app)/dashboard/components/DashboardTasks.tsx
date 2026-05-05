@@ -11,16 +11,7 @@ import {
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
-
-type Task = {
-  id: string;
-  title: string;
-  status: "TODO" | "IN_PROGRESS" | "DONE";
-  priority?: "LOW" | "MEDIUM" | "HIGH";
-  dueDate?: string | null;
-  category?: string | null;
-  completedAt?: string | null;
-};
+import { Task } from "@/app/types/task";
 
 export default function DashboardTasks({
   tasks,
@@ -32,7 +23,6 @@ export default function DashboardTasks({
   const [localTasks, setLocalTasks] = useState<Task[]>(tasks);
   const [loadingIds, setLoadingIds] = useState<string[]>([]);
 
-  // 🔥 sincroniza quando backend atualizar
   useEffect(() => {
     setLocalTasks(tasks);
   }, [tasks]);
@@ -43,7 +33,7 @@ export default function DashboardTasks({
   const focusTasks = [...pending]
     .sort((a, b) => {
       const order = { HIGH: 3, MEDIUM: 2, LOW: 1 };
-      return order[b.priority ?? "LOW"] - order[a.priority ?? "LOW"];
+      return order[b.priority] - order[a.priority];
     })
     .slice(0, 5);
 
@@ -54,12 +44,6 @@ export default function DashboardTasks({
         new Date(a.completedAt || 0).getTime()
     )
     .slice(0, 2);
-
-  const getPriorityColor = (priority?: string) => {
-    if (priority === "HIGH") return "text-red-400";
-    if (priority === "MEDIUM") return "text-yellow-400";
-    return "text-zinc-500";
-  };
 
   const formatDate = (date?: string | null) => {
     if (!date) return null;
@@ -75,42 +59,57 @@ export default function DashboardTasks({
     return "Fazer";
   };
 
-  // 🔥 AQUI ESTÁ A MÁGICA (optimistic update)
-  const handleComplete = async (id: string) => {
-    // 1. UI atualiza INSTANTE
-    setLocalTasks((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? {
-              ...t,
-              status: "DONE",
-              completedAt: new Date().toISOString(),
-            }
-          : t
-      )
-    );
+  const canTriggerStreak = () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const key = `streak_triggered_${today}`;
 
-    try {
-      setLoadingIds((prev) => [...prev, id]);
+  if (localStorage.getItem(key)) return false;
 
-      // 2. backend roda depois
-      await api.patch(`/tasks/${id}/status`, {
-        status: "DONE",
-      });
+  localStorage.setItem(key, "1");
+  return true;
+};
 
-      // 🔥 ADICIONAR AQUI
+
+
+const handleComplete = async (id: string) => {
+  setLocalTasks((prev) =>
+    prev.map((t) =>
+      t.id === id
+        ? {
+            ...t,
+            status: "DONE",
+            completedAt: new Date().toISOString(),
+          }
+        : t
+    )
+  );
+
+  try {
+    setLoadingIds((prev) => [...prev, id]);
+
+    await api.patch(`/tasks/${id}/status`, {
+      status: "DONE",
+    });
+
+    const progressRes = await api.get("/streak/today");
+
+    await api.post("/streak/update", {
+      progress: progressRes.data.progress,
+    });
+
+    // 🔥 GATE AQUI
+    if (canTriggerStreak()) {
       window.dispatchEvent(new Event("streak_updated"));
-
-      onReload?.(); // opcional
-    } catch (err) {
-      console.error(err);
-
-      // fallback: recarrega estado real
-      onReload?.();
-    } finally {
-      setLoadingIds((prev) => prev.filter((i) => i !== id));
     }
-  };
+
+    onReload?.();
+  } catch (err) {
+    onReload?.();
+  } finally {
+    setLoadingIds((prev) => prev.filter((i) => i !== id));
+  }
+};
+
 
   if (!localTasks.length) {
     return (
@@ -193,12 +192,10 @@ export default function DashboardTasks({
                   </div>
 
                   <div className="flex gap-3 text-xs text-zinc-500">
-                    {task.priority && (
-                      <span className={`flex gap-1 ${getPriorityColor(task.priority)}`}>
-                        <Flame size={12} />
-                        {task.priority}
-                      </span>
-                    )}
+                    <span className="flex gap-1">
+                      <Flame size={12} />
+                      {task.priority}
+                    </span>
 
                     {task.dueDate && (
                       <span className="flex gap-1">

@@ -12,7 +12,9 @@ export class StreakService {
   ) {}
 
   async update(userId: string, dto: UpdateStreakDto) {
-    const { progress } = dto;
+    const progress =
+  dto.progress ??
+  (await this.calculateDailyProgress(userId));
 
     const todayKey = this.getTodayKey();
 
@@ -98,13 +100,19 @@ export class StreakService {
   }
 
   async calculateDailyProgress(userId: string) {
-  const todayKey = this.getTodayKey();
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
 
   const tasksToday = await this.prisma.task.findMany({
     where: {
       userId,
+      archivedAt: null,
       createdAt: {
-        gte: new Date(todayKey),
+        gte: start,
+        lte: end,
       },
     },
   });
@@ -114,6 +122,26 @@ export class StreakService {
   const done = tasksToday.filter(t => t.status === "DONE").length;
 
   return Math.round((done / tasksToday.length) * 100);
+}
+
+  async isDayCompleted(userId: string) {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+
+  const tasks = await this.prisma.task.findMany({
+    where: {
+      userId,
+      archivedAt: null,
+      createdAt: { gte: start, lte: end },
+    },
+  });
+
+  if (tasks.length === 0) return false;
+
+  return tasks.every(t => t.status === "DONE");
 }
 
   async get(userId: string) {

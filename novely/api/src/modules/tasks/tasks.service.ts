@@ -117,13 +117,35 @@ async findAll(userId: string, period?: string) {
     },
   });
 
-  // 🔥 META
+  // =========================
+  // 🔥 RECOMPUTE GOAL STATE
+  // =========================
   if (task.goalId) {
-    await this.goalsService.recalcGoalProgress(task.goalId);
+    const goal = await this.prisma.goal.findUnique({
+      where: { id: task.goalId },
+      include: { tasks: true },
+    });
+
+    if (goal) {
+      const total = goal.tasks.length;
+      const done = goal.tasks.filter(t => t.status === 'DONE').length;
+
+      const progress = total === 0 ? 0 : Math.round((done / total) * 100);
+      const isCompleted = total > 0 && done === total;
+
+      await this.prisma.goal.update({
+        where: { id: goal.id },
+        data: {
+          progress,
+          status: isCompleted ? 'COMPLETED' : 'ACTIVE',
+          completedAt: isCompleted ? new Date() : null,
+        },
+      });
+    }
   }
 
   // =========================
-  // 🔥🔥 STREAK (AQUI É O CORE)
+  // 🔥 STREAK UPDATE (ESSENCIAL)
   // =========================
   const progress = await this.streakService.calculateDailyProgress(userId);
 

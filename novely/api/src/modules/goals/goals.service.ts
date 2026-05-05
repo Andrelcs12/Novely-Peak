@@ -205,6 +205,7 @@ export class GoalsService {
   }
 
   const done = goal.tasks.filter(t => t.status === 'DONE').length;
+  const allDone = done === total;
 
   const progress = Math.round((done / total) * 100);
 
@@ -212,8 +213,11 @@ export class GoalsService {
     where: { id: goalId },
     data: {
       progress,
-      status: progress === 100 ? GoalStatus.COMPLETED : GoalStatus.ACTIVE,
-      completedAt: progress === 100 ? new Date() : null,
+
+      // 🔥 REGRA PRINCIPAL (NOVO)
+      status: allDone ? GoalStatus.COMPLETED : GoalStatus.ACTIVE,
+
+      completedAt: allDone ? new Date() : null,
     },
   });
 }
@@ -221,20 +225,33 @@ export class GoalsService {
   // =========================
   // STATUS
   // =========================
-  async updateStatus(id: string, userId: string, status: GoalStatus) {
-    await this.ensureOwnership(id, userId);
+ async updateStatus(id: string, userId: string, status: GoalStatus) {
+  await this.ensureOwnership(id, userId);
 
-    return this.prisma.goal.update({
+  return this.prisma.$transaction(async (tx) => {
+
+    // 1. atualiza goal
+    const goal = await tx.goal.update({
       where: { id },
       data: {
         status,
-        completedAt:
-          status === GoalStatus.COMPLETED
-            ? new Date()
-            : null,
+        completedAt: status === GoalStatus.COMPLETED ? new Date() : null,
       },
     });
-  }
+
+    // 2. SE COMPLETAR META → completa tasks também
+    if (status === GoalStatus.COMPLETED) {
+      await tx.task.updateMany({
+        where: { goalId: id },
+        data: {
+          status: "DONE",
+        },
+      });
+    }
+
+    return goal;
+  });
+}
 
   // =========================
   // DELETE (soft)
