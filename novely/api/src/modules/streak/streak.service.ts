@@ -1,289 +1,409 @@
-import { PrismaService } from "@/prisma.service";
 import { Injectable } from "@nestjs/common";
-import { UpdateStreakDto } from "./dto/streak.dto";
-import { StreakEventsService } from "../streak-events/streak-events.service";
-import { StreakEventType } from "../streak-events/streak-events.types";
+
+import { PrismaService } from "@/prisma.service";
+
+import { StreakEngine } from "./streak.engine";
+
+import {
+  getTodayKey,
+  getStartOfDay,
+  getEndOfDay,
+  isSameDay,
+} from "./streak.helpers";
 
 @Injectable()
 export class StreakService {
   constructor(
     private prisma: PrismaService,
-    private streakEvents: StreakEventsService,
   ) {}
 
-  async update(userId: string, dto: UpdateStreakDto) {
+  // =========================================
+  // UPDATE
+  // =========================================
+
+  async update(userId: string) {
     const progress =
-  dto.progress ??
-  (await this.calculateDailyProgress(userId));
+      await this.calculateDailyProgress(
+        userId,
+      );
 
-    const todayKey = this.getTodayKey();
-
-    const streak = await this.prisma.streak.findUnique({
-      where: { userId },
-    });
-
-    // =========================
-    // HISTORY GUARD (1x por dia)
-    // =========================
-    const alreadyToday = await this.prisma.streakHistory.findUnique({
-      where: {
-        userId_date: {
-          userId,
-          date: new Date(todayKey),
+    const streak =
+      await this.prisma.streak.findUnique(
+        {
+          where: { userId },
         },
-      },
-    });
+      );
 
-    if (alreadyToday && streak) {
-      return this.response(streak, progress, false);
+    // =========================
+    // CREATE
+    // =========================
+
+    if (!streak) {
+      const created =
+        await this.prisma.streak.create(
+          {
+            data: {
+              userId,
+
+              current:
+                progress.progress >= 70
+                  ? 1
+                  : 0,
+
+              best:
+                progress.progress >= 70
+                  ? 1
+                  : 0,
+
+              status:
+                progress.progress >= 70
+                  ? "ACTIVE"
+                  : "BROKEN",
+
+              lastCompletedAt:
+                progress.progress >= 70
+                  ? new Date()
+                  : null,
+            },
+          },
+        );
+
+      return created;
     }
 
-    const status = this.getStatus(progress);
-
     // =========================
-    // FIRST TIME
+    // PROCESS ENGINE
     // =========================
-    if (!streak) {
-      const initial = this.buildNextStreak(0, progress);
 
-      const created = await this.prisma.streak.create({
-        data: {
-          userId,
-          current: initial,
-          best: initial,
-          status,
-          lastUpdatedAt: new Date(todayKey),
-          lastCompletedAt: progress >= 70 ? new Date(todayKey) : null,
-        },
+    const result =
+      StreakEngine.process({
+        current:
+          streak.current,
+
+        best: streak.best,
+
+        progress:
+          progress.progress,
+
+        alreadyCompletedToday:
+          isSameDay(
+            streak.lastCompletedAt,
+            new Date(),
+          ),
       });
 
-      await this.createHistory(userId, progress, status, todayKey);
+    // =========================
+    // UPDATE STREAK
+    // =========================
 
-      this.emitEvent(userId, initial, status);
+    const updated =
+      await this.prisma.streak.update(
+        {
+          where: { userId },
 
-      return this.response(created, progress, true);
-    }
+          data: {
+            current:
+              result.current,
+
+            best: result.best,
+
+            status:
+              result.status,
+
+            lastUpdatedAt:
+              new Date(),
+
+            lastCompletedAt:
+              result.completedToday
+                ? new Date()
+                : streak.lastCompletedAt,
+          },
+        },
+      );
 
     // =========================
-    // SAME DAY BLOCK
+    // HISTORY
     // =========================
-    if (
-      streak.lastUpdatedAt &&
-      this.toDayKey(streak.lastUpdatedAt) === todayKey
-    ) {
-      return this.response(streak, progress, false);
-    }
 
-    // =========================
-    // RULE ENGINE
-    // =========================
-    const newCurrent = this.buildNextStreak(streak.current, progress);
-    const newBest = Math.max(streak.best, newCurrent);
+    await this.prisma.streakHistory.upsert(
+      {
+        where: {
+          userId_dateKey: {
+            userId,
 
-    const updated = await this.prisma.streak.update({
-      where: { userId },
-      data: {
-        current: newCurrent,
-        best: newBest,
-        status,
-        lastUpdatedAt: new Date(todayKey),
-        lastCompletedAt:
-          progress >= 70 ? new Date(todayKey) : streak.lastCompletedAt,
+            dateKey:
+              getTodayKey(),
+          },
+        },
+
+        update: {
+          progress:
+            progress.progress,
+
+          completed:
+            result.completedToday,
+
+          streakAfter:
+            result.current,
+
+          status:
+            result.status,
+        },
+
+        create: {
+          userId,
+
+          dateKey:
+            getTodayKey(),
+
+          progress:
+            progress.progress,
+
+          completed:
+            result.completedToday,
+
+          streakAfter:
+            result.current,
+
+          status:
+            result.status,
+        },
       },
-    });
+    );
 
-    await this.createHistory(userId, progress, status, todayKey);
+    return {
+      current: result.current,
 
-    this.emitEvent(userId, newCurrent, status);
+      best: result.best,
 
-    return this.response(updated, progress, true);
+      status: result.status,
+
+      progress:
+        progress.progress,
+
+      incremented:
+        result.incremented,
+
+      broken:
+        result.broken,
+    };
   }
 
-  async calculateDailyProgress(userId: string) {
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
+  // =========================================
+  // DAILY PROGRESS
+  // =========================================
 
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
+  async calculateDailyProgress(
+    userId: string,
+  ) {
+    const start =
+      getStartOfDay();
 
-  const tasksToday = await this.prisma.task.findMany({
-    where: {
-      userId,
-      archivedAt: null,
-      createdAt: {
-        gte: start,
-        lte: end,
-      },
-    },
-  });
+    const end = getEndOfDay();
 
-  if (!tasksToday.length) return 0;
+    const tasks =
+      await this.prisma.task.findMany(
+        {
+          where: {
+            userId,
 
-  const done = tasksToday.filter(t => t.status === "DONE").length;
+            archivedAt: null,
 
-  return Math.round((done / tasksToday.length) * 100);
-}
+            completedAt: {
+              gte: start,
+              lte: end,
+            },
+          },
+        },
+      );
 
-  async isDayCompleted(userId: string) {
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
+    const completed =
+      tasks.filter(
+        (task) =>
+          task.status === "DONE",
+      ).length;
 
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
+    const total = tasks.length;
 
-  const tasks = await this.prisma.task.findMany({
-    where: {
-      userId,
-      archivedAt: null,
-      createdAt: { gte: start, lte: end },
-    },
-  });
+    if (!total) {
+      return {
+        progress: 0,
+        total: 0,
+        completed: 0,
+      };
+    }
 
-  if (tasks.length === 0) return false;
+    const progress =
+      Math.round(
+        (completed / total) *
+          100,
+      );
 
-  return tasks.every(t => t.status === "DONE");
-}
+    return {
+      progress,
+      total,
+      completed,
+    };
+  }
+
+  // =========================================
+  // GET
+  // =========================================
 
   async get(userId: string) {
-  const streak = await this.prisma.streak.findUnique({
-    where: { userId },
-  });
+    const streak =
+      await this.prisma.streak.findUnique(
+        {
+          where: { userId },
+        },
+      );
+
+    if (!streak) {
+      return {
+        current: 0,
+        best: 0,
+        status: "BROKEN",
+      };
+    }
+
+    return streak;
+  }
+
+  // =========================================
+  // TODAY
+  // =========================================
+
+  async getToday(userId: string) {
+    const todayKey =
+      getTodayKey();
+
+    const history =
+      await this.prisma.streakHistory.findUnique(
+        {
+          where: {
+            userId_dateKey: {
+              userId,
+              dateKey:
+                todayKey,
+            },
+          },
+        },
+      );
+
+    const progress =
+      await this.calculateDailyProgress(
+        userId,
+      );
+
+    return {
+      date: todayKey,
+
+      progress:
+        progress.progress,
+
+      completed:
+        history?.completed ??
+        false,
+
+      status:
+        history?.status ??
+        "BROKEN",
+
+      streakAfter:
+        history?.streakAfter ??
+        0,
+    };
+  }
+
+
+  // =========================================
+// HISTORY
+// =========================================
+
+async getHistory(userId: string) {
+  const history =
+    await this.prisma.streakHistory.findMany(
+      {
+        where: {
+          userId,
+        },
+
+        orderBy: {
+          dateKey: "asc",
+        },
+      },
+    );
+
+  return history.map((item) => ({
+    date: item.dateKey,
+
+    progress:
+      item.progress,
+
+    completed:
+      item.completed,
+
+    streakAfter:
+      item.streakAfter,
+
+    tasksTotal:
+      item.tasksTotal,
+
+    tasksCompleted:
+      item.tasksCompleted,
+
+    status:
+      item.status,
+  }));
+}
+
+
+// =========================================
+// RESET
+// =========================================
+
+async reset(userId: string) {
+  const streak =
+    await this.prisma.streak.findUnique(
+      {
+        where: { userId },
+      },
+    );
 
   if (!streak) {
     return {
-      current: 0,
-      best: 0,
-      status: "ACTIVE",
+      success: false,
+      message:
+        "Streak não encontrado",
     };
   }
 
+  const updated =
+    await this.prisma.streak.update(
+      {
+        where: { userId },
+
+        data: {
+          current: 0,
+
+          status: "BROKEN",
+
+          frozenDays: 0,
+
+          lastCompletedAt: null,
+
+          lastUpdatedAt:
+            new Date(),
+        },
+      },
+    );
+
   return {
-    current: streak.current,
-    best: streak.best,
-    status: streak.status,
+    success: true,
+
+    streak: updated,
   };
 }
 
 
-async getToday(userId: string) {
-  const todayKey = this.getTodayKey();
-
-  const history = await this.prisma.streakHistory.findUnique({
-    where: {
-      userId_date: {
-        userId,
-        date: new Date(todayKey),
-      },
-    },
-  });
-
-  const tasksToday = await this.prisma.task.count({
-    where: {
-      userId,
-      createdAt: {
-        gte: new Date(todayKey),
-      },
-    },
-  });
-
-  // 🔥 NOVO
-  const progress = await this.calculateDailyProgress(userId);
-
-  return {
-    started: tasksToday > 0,
-    ended: !!history,
-    progress, // 🔥 ESSENCIAL
-  };
-}
-
-  // =========================
-  // RULE ENGINE
-  // =========================
-  private buildNextStreak(current: number, progress: number) {
-    if (progress >= 70) return current + 1;
-    if (progress < 40) return 0;
-    return current;
-  }
-
-  private getStatus(progress: number) {
-    if (progress >= 70) return "ACTIVE";
-    if (progress >= 40) return "FROZEN";
-    return "BROKEN";
-  }
-
-  // =========================
-  // HISTORY SAFE
-  // =========================
-  private async createHistory(
-    userId: string,
-    progress: number,
-    status: string,
-    dateKey: string,
-  ) {
-    return this.prisma.streakHistory.create({
-      data: {
-        userId,
-        date: new Date(dateKey),
-        progress,
-        status,
-      },
-    });
-  }
-
-  // =========================
-  // EVENTS
-  // =========================
-  private emitEvent(userId: string, current: number, status: string) {
-    if (status === "ACTIVE") {
-      this.streakEvents.emit(StreakEventType.STREAK_UP, {
-        userId,
-        current,
-      });
-    }
-
-    if (status === "FROZEN") {
-      this.streakEvents.emit(StreakEventType.STREAK_WARNING, {
-        userId,
-        current,
-      });
-    }
-
-    if (status === "BROKEN") {
-      this.streakEvents.emit(StreakEventType.STREAK_BROKEN, {
-        userId,
-        current,
-      });
-    }
-  }
-
-  // =========================
-  // RESPONSE
-  // =========================
-  private response(streak, progress: number, updated: boolean) {
-    return {
-      current: streak.current,
-      best: streak.best,
-      status: streak.status,
-      progress,
-      updated,
-      message: this.getMessage(progress),
-    };
-  }
-
-  private getMessage(progress: number) {
-    if (progress >= 70) return "Streak mantido 🔥";
-    if (progress >= 40) return "Dia estável ⚠️";
-    return "Streak quebrado ❌";
-  }
-
-  // =========================
-  // DATE HELPERS (SAFE UTC)
-  // =========================
-  private getTodayKey() {
-    return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  }
-
-  private toDayKey(date: Date) {
-    return date.toISOString().slice(0, 10);
-  }
 }

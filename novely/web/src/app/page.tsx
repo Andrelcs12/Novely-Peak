@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { api } from "@/lib/api";
+import Loading from "./components/ui/loading";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -47,7 +48,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex items-center justify-center text-zinc-800">
-      <p>Carregando...</p>
+      <Loading text="Carregando Informações" />
     </div>
   );
 }

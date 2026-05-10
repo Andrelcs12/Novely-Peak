@@ -71,40 +71,30 @@ export default function DashboardTasks({
 
 
 
+
+// DashboardTasks.tsx -> função handleComplete
+
 const handleComplete = async (id: string) => {
+  // Feedback visual imediato (Optimistic UI)
   setLocalTasks((prev) =>
     prev.map((t) =>
-      t.id === id
-        ? {
-            ...t,
-            status: "DONE",
-            completedAt: new Date().toISOString(),
-          }
-        : t
+      t.id === id ? { ...t, status: "DONE", completedAt: new Date().toISOString() } : t
     )
   );
 
   try {
     setLoadingIds((prev) => [...prev, id]);
 
-    await api.patch(`/tasks/${id}/status`, {
-      status: "DONE",
-    });
+    // O Backend já vai disparar a atualização do streak dentro desse PATCH
+    await api.patch(`/tasks/${id}/status`, { status: "DONE" });
 
-    const progressRes = await api.get("/streak/today");
+    // Disparamos o evento para o Header ouvir e tocar o som/animação
+    window.dispatchEvent(new Event("streak_updated"));
 
-    await api.post("/streak/update", {
-      progress: progressRes.data.progress,
-    });
-
-    // 🔥 GATE AQUI
-    if (canTriggerStreak()) {
-      window.dispatchEvent(new Event("streak_updated"));
-    }
-
-    onReload?.();
+    if (onReload) onReload();
   } catch (err) {
-    onReload?.();
+    console.error("Erro ao concluir tarefa:", err);
+    if (onReload) onReload(); // Reverte o estado em caso de erro
   } finally {
     setLoadingIds((prev) => prev.filter((i) => i !== id));
   }

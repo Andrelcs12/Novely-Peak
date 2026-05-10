@@ -5,8 +5,8 @@ import { PrismaService } from '@/prisma.service';
 import { GoalsService } from '../goals/goals.service';
 
 @Module({
-  imports: [GoalsService],
+  imports: [],
   controllers: [UserController],
-  providers: [UserService, PrismaService],
+  providers: [UserService, PrismaService, GoalsService],
 })
 export class UserModule {}

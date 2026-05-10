@@ -28,8 +28,8 @@ export default function DashboardPage() {
   const load = async () => {
     try {
       const [tasksRes, goalsRes, todayRes, last7dRes] = await Promise.all([
-        api.get("/tasks?period=today"),
-        api.get("/goals?period=today"),
+        api.get("/tasks?period=7d"),
+        api.get("/goals?period=7d"),
         api.get("/streak/today"),
         api.get("/tasks?period=7d"), // 🔥 novo
       ]);

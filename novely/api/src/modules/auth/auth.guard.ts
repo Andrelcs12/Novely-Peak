@@ -4,7 +4,8 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import { supabase } from "./supabase";
+import { supabase } from "../goals/dto/supabase";
+
 
 @Injectable()
 export class AuthGuard implements CanActivate {

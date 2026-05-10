@@ -23,7 +23,7 @@ export default function GoalsPage() {
   const [goals7d, setGoals7d] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [period, setPeriod] = useState<Period>("today");
+  const [period, setPeriod] = useState<Period>("week");
 
   const [open, setOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);

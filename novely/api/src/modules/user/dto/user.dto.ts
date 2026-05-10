@@ -1,4 +1,4 @@
-import { IsEnum } from "class-validator";
+import { IsEnum, IsOptional, IsString, MinLength } from "class-validator";
 
 export enum UserGoal {
   WORK = "WORK",
@@ -28,4 +28,17 @@ export class CompleteOnboardingDto {
 
   @IsEnum(DisciplineLevel)
   discipline!: DisciplineLevel;
+}
+
+
+export class UpdateProfileDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  username?: string;
 }

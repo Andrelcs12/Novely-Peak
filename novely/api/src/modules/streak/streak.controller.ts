@@ -1,35 +1,74 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
-import { StreakService } from "./streak.service";
-import { UpdateStreakDto } from "./dto/streak.dto";
+import {
+  Controller,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+} from "@nestjs/common";
+
 import { AuthGuard } from "../auth/auth.guard";
 
+import { StreakService } from "./streak.service";
+
 @Controller("streak")
+@UseGuards(AuthGuard)
 export class StreakController {
-  constructor(private readonly streakService: StreakService) {}
+  constructor(
+    private readonly streakService: StreakService,
+  ) {}
 
-  // =========================
-  // UPDATE STREAK
-  // =========================
-  @UseGuards(AuthGuard)
+  // =========================================
+  // UPDATE
+  // =========================================
+
   @Post("update")
-  async update(@Req() req, @Body() dto: UpdateStreakDto) {
-    const userId = req.user.id;
-    return this.streakService.update(userId, dto);
+  async update(@Req() req: any) {
+    return this.streakService.update(
+      req.user.id,
+    );
   }
 
-  // =========================
-  // GET STREAK GLOBAL
-  // =========================
-  @UseGuards(AuthGuard)
+  // =========================================
+  // GET CURRENT STREAK
+  // =========================================
+
   @Get("me")
-  async getMyStreak(@Req() req) {
-    const userId = req.user.id;
-    return this.streakService.get(userId);
+  async get(@Req() req: any) {
+    return this.streakService.get(
+      req.user.id,
+    );
   }
 
-  @UseGuards(AuthGuard)
-@Get("today")
-async getToday(@Req() req) {
-  return this.streakService.getToday(req.user.id);
-}
+  // =========================================
+  // GET TODAY
+  // =========================================
+
+  @Get("today")
+  async getToday(@Req() req: any) {
+    return this.streakService.getToday(
+      req.user.id,
+    );
+  }
+
+  // =========================================
+  // GET HISTORY
+  // =========================================
+
+  @Get("history")
+  async getHistory(@Req() req: any) {
+    return this.streakService.getHistory(
+      req.user.id,
+    );
+  }
+
+  // =========================================
+  // RESET
+  // =========================================
+
+  @Post("reset")
+  async reset(@Req() req: any) {
+    return this.streakService.reset(
+      req.user.id,
+    );
+  }
 }

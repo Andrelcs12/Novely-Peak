@@ -12,10 +12,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// =======================
-// ENUMS
-// =======================
-
 enum UserGoal {
   WORK
   STUDY
@@ -72,9 +68,11 @@ enum GoalProgressMode {
   HYBRID
 }
 
-// =======================
-// USER
-// =======================
+enum StreakStatus {
+  ACTIVE
+  BROKEN
+  FROZEN
+}
 
 model User {
   id       String  @id @default(cuid())
@@ -94,65 +92,82 @@ model User {
   bio        String?
   focusLevel Int?
 
+  timezone String @default("America/Sao_Paulo")
+
   tasks Task[]
   goals Goal[]
+  link Link[]
 
-  // 🔥 STREAK RELATION (1–1)
-  streak Streak?
-
-  // 🔥 STREAK HISTORY (1–N)
+  streak        Streak?
   streakHistory StreakHistory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([email])
+  @@index([username])
   @@index([onboardingDone])
-}
-
-enum StreakStatus {
-  ACTIVE
-  BROKEN
-  FROZEN
 }
 
 model Streak {
   id String @id @default(cuid())
 
   userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   current Int @default(0)
-  best    Int @default(0)
+
+  best Int @default(0)
+
+  frozenDays Int @default(0)
 
   status StreakStatus @default(ACTIVE)
 
-  lastUpdatedAt   DateTime?
+  lastDateKey String?
+
+  lastUpdatedAt DateTime?
+
   lastCompletedAt DateTime?
 
   createdAt DateTime @default(now())
+
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@index([status])
+  @@index([lastDateKey])
 }
 
 model StreakHistory {
   id String @id @default(cuid())
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  date DateTime
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  dateKey String
 
   progress Int
-  status   String
+
+  tasksTotal Int @default(0)
+
+  tasksCompleted Int @default(0)
+
+  completed Boolean @default(false)
+
+  streakAfter Int @default(0)
+
+  status StreakStatus
 
   createdAt DateTime @default(now())
 
-  @@unique([userId, date]) // 🔥 evita duplicar dia
-  @@index([userId, date])
-}
+  @@unique([userId, dateKey])
 
+  @@index([userId])
+  @@index([dateKey])
+  @@index([userId, dateKey])
+}
 // =======================
 // GOAL
 // =======================
@@ -211,6 +226,7 @@ model Goal {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   tasks Task[]
+  links Link[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -271,6 +287,8 @@ model Task {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  linka Link[]
+
   goalId String?
   goal   Goal?   @relation(fields: [goalId], references: [id], onDelete: SetNull)
 
@@ -283,4 +301,61 @@ model Task {
   @@index([priority])
   @@index([dueDate])
   @@index([goalId, status])
+}
+
+
+model Link {
+  id String @id @default(cuid())
+
+  title String?
+  description String?
+
+  url String
+
+  domain String?
+  favicon String?
+  image String?
+
+  type LinkType @default(ARTICLE)
+
+  aiSummary String?
+  aiTags String[]
+
+  notes String?
+
+  readingTime Int?
+
+  isFavorite Boolean @default(false)
+  isArchived Boolean @default(false)
+
+  views Int @default(0)
+
+  lastViewedAt DateTime?
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  goalId String?
+  goal Goal? @relation(fields: [goalId], references: [id], onDelete: SetNull)
+
+  taskId String?
+  task Task? @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([type])
+  @@index([isFavorite])
+}
+
+
+enum LinkType {
+  ARTICLE
+  VIDEO
+  DOCUMENT
+  TOOL
+  TWITTER
+  GITHUB
+  OTHER
 }

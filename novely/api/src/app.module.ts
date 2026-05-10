@@ -12,6 +12,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
 import { GoalsModule } from './modules/goals/goals.module';
 import { StreakModule } from './modules/streak/streak.module';
 import { StreakEventsModule } from './modules/streak-events/streak-events.module';
+import { LinksModule } from './modules/links/links.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -35,6 +36,7 @@ import { StreakEventsModule } from './modules/streak-events/streak-events.module
     GoalsModule,
     StreakModule,
     StreakEventsModule,
+    LinksModule,
   ],
 
   controllers: [AppController],

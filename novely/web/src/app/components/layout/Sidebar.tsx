@@ -16,6 +16,7 @@ import {
   UserPlus,
   Settings,
   LogOut,
+  LinkIcon,
 } from "lucide-react";
 
 import { useState } from "react";
@@ -32,6 +33,7 @@ const NAV_ITEMS = [
   { label: "Painel", href: "/dashboard", icon: LayoutDashboard },
   { label: "Tarefas", href: "/tasks", icon: CheckSquare },
   { label: "Metas", href: "/goals", icon: Target },
+  { label: "Links", href: "/links", icon: LinkIcon },
   { label: "Perfil", href: "/profile", icon: UserIcon },
 ];
 

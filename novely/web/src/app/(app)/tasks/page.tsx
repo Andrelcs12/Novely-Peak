@@ -85,37 +85,52 @@ export default function TasksPage() {
       });
   }, [tasks, search, priority, filter]);
 
-  // ACTIONS
-  const handleToggle = async (task: Task) => {
-    const newStatus: Task["status"] =
-      task.status === "DONE" ? "TODO" : "DONE";
 
+  const handleToggle = async (task: Task) => {
+  const newStatus: Task["status"] = task.status === "DONE" ? "TODO" : "DONE";
+
+  // 1. Atualização Otimista (Local) para resposta instantânea
+  setTasks((prev) =>
+    prev.map((t) =>
+      t.id === task.id 
+        ? { ...t, status: newStatus, completedAt: newStatus === "DONE" ? new Date().toISOString() : null } 
+        : t
+    )
+  );
+
+  try {
+    // 2. Aguarda a atualização do status no servidor
+    await api.patch(`/tasks/${task.id}/status`, {
+      status: newStatus,
+    });
+
+    // 3. Busca o progresso atualizado do dia
+    const progressRes = await api.get("/streak/today");
+    
+    // 🔥 CORREÇÃO AQUI: Verificamos se data existe e extraímos o progress
+    // Se progress não existir na resposta, usamos 0 ou recalculamos
+    const actualData = progressRes.data ?? progressRes;
+    const currentProgress = actualData?.progress ?? 0;
+
+    // 4. Atualizamos o streak no banco com o valor seguro
+    await api.post("/streak/update", {
+      progress: currentProgress,
+    });
+
+    // 5. Notificamos o sistema para atualizar o Header/Fogo
+    window.dispatchEvent(new Event("streak_updated"));
+
+  } catch (error) {
+    console.error("Erro ao atualizar tarefa:", error);
+    
+    // Reverter o estado local caso a API falhe
     setTasks((prev) =>
       prev.map((t) =>
-        t.id === task.id ? { ...t, status: newStatus } : t
+        t.id === task.id ? { ...t, status: task.status } : t
       )
     );
-
-    try {
-      await api.patch(`/tasks/${task.id}/status`, {
-        status: newStatus,
-      });
-
-      const progressRes = await api.get("/streak/today");
-
-await api.post("/streak/update", {
-  progress: progressRes.data.progress,
-});
-
-window.dispatchEvent(new Event("streak_updated"));
-    } catch {
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.id === task.id ? { ...t, status: task.status } : t
-        )
-      );
-    }
-  };
+  }
+};
 
   const handleDelete = async (task: Task) => {
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
