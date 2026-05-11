@@ -86,7 +86,7 @@ const handleComplete = async (id: string) => {
     setLoadingIds((prev) => [...prev, id]);
 
     // O Backend já vai disparar a atualização do streak dentro desse PATCH
-    await api.patch(`/tasks/${id}/status`, { status: "DONE" });
+    await api.patch(`/tasks/${id}/status`, { status: "DONE"  });
 
     // Disparamos o evento para o Header ouvir e tocar o som/animação
     window.dispatchEvent(new Event("streak_updated"));
