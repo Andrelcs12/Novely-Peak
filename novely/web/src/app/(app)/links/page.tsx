@@ -31,7 +31,9 @@ export default function LinksPage() {
 
       const res = await api.get("/links");
 
-      setLinks(res.data ?? []);
+      console.log("resultado do back", res);
+
+      setLinks(res ?? []);
     } catch (err) {
       console.error(err);
     } finally {
