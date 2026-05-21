@@ -1,11 +1,23 @@
 // modules/tasks/dto/task.dto.ts
 
-import { IsOptional, IsString, IsEnum, IsInt, IsBoolean } from 'class-validator';
-import { TaskPriority, TaskStatus } from '../../../../generated/prisma/enums';
+import {
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsInt,
+  IsArray,
+  Min,
+  Max,
+  MaxLength,
+  MinLength,
+} from "class-validator";
+import { TaskPriority, TaskStatus } from "../../../../generated/prisma/enums";
 
 export class TaskDto {
   @IsOptional()
   @IsString()
+  @MinLength(3)
+  @MaxLength(120)
   title?: string;
 
   @IsOptional()
@@ -24,29 +36,28 @@ export class TaskDto {
   dueDate?: Date | null;
 
   @IsOptional()
+  completedAt?: Date | null;
+
+  @IsOptional()
   @IsInt()
+  @Min(1)
+  @Max(600)
   estimatedTime?: number | null;
 
   @IsOptional()
   @IsInt()
-  energyLevel?: number | null;
+  focusTime?: number | null;
+
+  // JSON arrays — validados em runtime no service
+  @IsOptional()
+  @IsArray()
+  checklist?: object[];
+
+  @IsOptional()
+  @IsArray()
+  links?: object[];
 
   @IsOptional()
   @IsString()
-  category?: string | null;
-
-  @IsOptional()
-  @IsBoolean()
-  isRecurring?: boolean;
-
-  @IsOptional()
-  @IsString()
-  recurrenceRule?: string | null;
-
-  @IsOptional()
-  archivedAt?: Date | null;
-
-  @IsOptional()
-  @IsString()
-  source?: string | null; // "manual" | "import" | "ai" etc
+  goalId?: string | null;
 }

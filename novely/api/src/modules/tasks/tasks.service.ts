@@ -1,3 +1,5 @@
+// modules/tasks/tasks.service.ts
+
 import {
   Injectable,
   BadRequestException,
@@ -5,11 +7,8 @@ import {
 } from "@nestjs/common";
 
 import { PrismaService } from "@/prisma.service";
-
 import { TaskDto } from "./dto/task.dto";
-
 import { TaskStatus } from "../../../generated/prisma/enums";
-
 import { GoalsService } from "../goals/goals.service";
 import { StreakService } from "../streak/streak.service";
 
@@ -21,487 +20,217 @@ export class TasksService {
     private streakService: StreakService,
   ) {}
 
-  // =========================
+  // ─────────────────────────────────────────────
   // LIST
-  // =========================
+  // ─────────────────────────────────────────────
 
-  async findAll(
-    userId: string,
-    period?: string,
-  ) {
-    const where: any = {
-      userId,
-      archivedAt: null,
-    };
-
+  async findAll(userId: string, period?: string) {
+    const where: any = { userId };
     const now = new Date();
-
-    // =========================
-    // TODAY
-    // =========================
 
     if (period === "today") {
       const start = new Date();
-
-      start.setHours(
-        0,
-        0,
-        0,
-        0,
-      );
+      start.setHours(0, 0, 0, 0);
 
       const end = new Date();
+      end.setHours(23, 59, 59, 999);
 
-      end.setHours(
-        23,
-        59,
-        59,
-        999,
-      );
-
+      // Tarefas criadas hoje OU com dueDate hoje
       where.OR = [
-        {
-          createdAt: {
-            gte: start,
-            lte: end,
-          },
-        },
-
-        {
-          dueDate: {
-            gte: start,
-            lte: end,
-          },
-        },
+        { createdAt: { gte: start, lte: end } },
+        { dueDate: { gte: start, lte: end } },
       ];
     }
 
-    // =========================
-    // LAST 7 DAYS
-    // =========================
-
     if (period === "7d") {
       const start = new Date();
+      start.setDate(start.getDate() - 7);
 
-      start.setDate(
-        start.getDate() - 7,
-      );
-
-      where.completedAt = {
-        gte: start,
-        lte: now,
-      };
-
-      where.status = "DONE";
+      where.status = TaskStatus.DONE;
+      where.completedAt = { gte: start, lte: now };
     }
-
-    // =========================
-    // OVERDUE
-    // =========================
 
     if (period === "overdue") {
-      where.dueDate = {
-        lt: now,
-      };
-
-      where.status = {
-        not: "DONE",
-      };
+      where.dueDate = { lt: now };
+      where.status = { not: TaskStatus.DONE };
     }
 
-    return this.prisma.task.findMany(
-      {
-        where,
-
-        orderBy: [
-          {
-            status: "asc",
-          },
-
-          {
-            priority:
-              "desc",
-          },
-
-          {
-            createdAt:
-              "desc",
-          },
-        ],
-      },
-    );
+    return this.prisma.task.findMany({
+      where,
+      orderBy: [
+        { priority: "desc" },
+        { dueDate: "asc" },
+        { createdAt: "desc" },
+      ],
+    });
   }
 
-  // =========================
+  // ─────────────────────────────────────────────
   // FIND ONE
-  // =========================
+  // ─────────────────────────────────────────────
 
-  async findOne(
-    id: string,
-    userId: string,
-  ) {
-    const task =
-      await this.prisma.task.findFirst(
-        {
-          where: {
-            id,
-            userId,
-          },
-        },
-      );
+  async findOne(id: string, userId: string) {
+    const task = await this.prisma.task.findFirst({
+      where: { id, userId },
+    });
 
-    if (!task) {
-      throw new NotFoundException(
-        "Task não encontrada",
-      );
-    }
+    if (!task) throw new NotFoundException("Task não encontrada");
 
     return task;
   }
 
-  // =========================
-  // TOGGLE STATUS
-  // =========================
+  // ─────────────────────────────────────────────
+  // CREATE
+  // ─────────────────────────────────────────────
 
-  async toggleStatus(
-    id: string,
-    userId: string,
-    status: TaskStatus,
-  ) {
-    await this.ensureOwnership(
-      id,
-      userId,
-    );
+  async create(userId: string, data: TaskDto) {
+    this.validateTaskInput(data);
 
-    // =========================
-    // UPDATE TASK
-    // =========================
+    return this.prisma.task.create({
+      data: {
+        title: data.title!.trim(),
+        description: data.description ?? null,
+        status: data.status ?? TaskStatus.TODO,
+        priority: data.priority ?? "MEDIUM",
+        dueDate: data.dueDate ?? null,
+        completedAt:
+          data.status === TaskStatus.DONE ? (data.completedAt ?? new Date()) : null,
+        estimatedTime: data.estimatedTime ?? null,
+        focusTime: data.focusTime ?? null,
+        checklist: data.checklist ?? [],
+        links: data.links ?? [],
+        user: { connect: { id: userId } },
+        ...(data.goalId ? { goal: { connect: { id: data.goalId } } } : {}),
+      },
+    });
+  }
 
-    const task =
-      await this.prisma.task.update(
-        {
-          where: { id },
+  // ─────────────────────────────────────────────
+  // UPDATE
+  // ─────────────────────────────────────────────
 
-          data: {
-            status,
+  async update(id: string, userId: string, data: TaskDto) {
+    await this.ensureOwnership(id, userId);
+    this.validateTaskInput(data);
 
-            completedAt:
-              status ===
-              TaskStatus.DONE
-                ? new Date()
-                : null,
+    const updateData: any = {
+      updatedAt: new Date(),
+    };
 
-            ...(status ===
-              TaskStatus.IN_PROGRESS && {
-              startedAt:
-                new Date(),
-            }),
-          },
-        },
-      );
+    if (data.title !== undefined) updateData.title = data.title.trim();
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.priority !== undefined) updateData.priority = data.priority;
+    if (data.dueDate !== undefined) updateData.dueDate = data.dueDate;
+    if (data.estimatedTime !== undefined) updateData.estimatedTime = data.estimatedTime;
+    if (data.focusTime !== undefined) updateData.focusTime = data.focusTime;
+    if (data.checklist !== undefined) updateData.checklist = data.checklist;
+    if (data.links !== undefined) updateData.links = data.links;
+    if (data.goalId !== undefined) {
+      updateData.goalId = data.goalId;
+    }
 
-    // =========================
-    // RECALC GOAL
-    // =========================
+    // Status via update (ex: edição no modal)
+    if (data.status !== undefined) {
+      updateData.status = data.status;
+      updateData.completedAt =
+        data.status === TaskStatus.DONE
+          ? (data.completedAt ?? new Date())
+          : null;
+    }
+
+    const task = await this.prisma.task.update({
+      where: { id },
+      data: updateData,
+    });
 
     if (task.goalId) {
-      await this.goalsService.recalcGoalProgress(
-        task.goalId,
-      );
+      await this.goalsService.recalcGoalProgress(task.goalId);
     }
-
-    // =========================
-    // UPDATE STREAK
-    // =========================
-
-    await this.streakService.update(
-      userId,
-    );
 
     return task;
   }
 
-  // =========================
-  // CREATE
-  // =========================
+  // ─────────────────────────────────────────────
+  // TOGGLE STATUS
+  // ─────────────────────────────────────────────
 
-  async create(
-    userId: string,
-    data: TaskDto,
-  ) {
-    this.validateTaskInput(
-      data,
-    );
+  async toggleStatus(id: string, userId: string, status: TaskStatus) {
+    await this.ensureOwnership(id, userId);
 
-    return this.prisma.task.create(
-      {
-        data: {
-          title:
-            data.title?.trim(),
-
-          description:
-            data.description ??
-            null,
-
-          status:
-            data.status ??
-            TaskStatus.TODO,
-
-          priority:
-            data.priority ??
-            "MEDIUM",
-
-          dueDate:
-            data.dueDate ??
-            null,
-
-          estimatedTime:
-            data.estimatedTime ??
-            null,
-
-          energyLevel:
-            data.energyLevel ??
-            null,
-
-          category:
-            data.category ??
-            null,
-
-          isRecurring:
-            data.isRecurring ??
-            false,
-
-          recurrenceRule:
-            data.recurrenceRule ??
-            null,
-
-          startedAt: null,
-
-          completedAt:
-            null,
-
-          archivedAt:
-            null,
-
-          source:
-            data.source ??
-            "manual",
-
-          user: {
-            connect: {
-              id: userId,
-            },
-          },
-        },
+    const task = await this.prisma.task.update({
+      where: { id },
+      data: {
+        status,
+        completedAt: status === TaskStatus.DONE ? new Date() : null,
       },
-    );
+    });
+
+    if (task.goalId) {
+      await this.goalsService.recalcGoalProgress(task.goalId);
+    }
+
+    await this.streakService.update(userId);
+
+    return task;
   }
 
-  // =========================
-  // UPDATE
-  // =========================
+  // ─────────────────────────────────────────────
+  // DELETE (hard delete — schema não tem archivedAt)
+  // ─────────────────────────────────────────────
 
-  async update(
-    id: string,
-    userId: string,
-    data: TaskDto,
-  ) {
-    await this.ensureOwnership(
-      id,
-      userId,
-    );
+  async remove(id: string, userId: string) {
+    await this.ensureOwnership(id, userId);
 
-    this.validateTaskInput(
-      data,
-    );
-
-    return this.prisma.task.update(
-      {
-        where: { id },
-
-        data: {
-          title:
-            data.title?.trim(),
-
-          description:
-            data.description,
-
-          priority:
-            data.priority,
-
-          dueDate:
-            data.dueDate,
-
-          estimatedTime:
-            data.estimatedTime,
-
-          energyLevel:
-            data.energyLevel,
-
-          category:
-            data.category,
-
-          isRecurring:
-            data.isRecurring,
-
-          recurrenceRule:
-            data.recurrenceRule,
-
-          updatedAt:
-            new Date(),
-        },
-      },
-    );
+    return this.prisma.task.delete({ where: { id } });
   }
 
-  // =========================
-  // DELETE
-  // =========================
-
-  async remove(
-    id: string,
-    userId: string,
-  ) {
-    await this.ensureOwnership(
-      id,
-      userId,
-    );
-
-    return this.prisma.task.update(
-      {
-        where: { id },
-
-        data: {
-          archivedAt:
-            new Date(),
-        },
-      },
-    );
-  }
-
-  // =========================
+  // ─────────────────────────────────────────────
   // VALIDATION
-  // =========================
+  // ─────────────────────────────────────────────
 
-  private validateTaskInput(
-    data: TaskDto,
-  ) {
-    // =========================
-    // TITLE
-    // =========================
-
-    if (
-      data.title !== undefined
-    ) {
-      if (
-        !data.title ||
-        data.title.trim()
-          .length < 3
-      ) {
-        throw new BadRequestException(
-          "Título muito curto",
-        );
+  private validateTaskInput(data: TaskDto) {
+    if (data.title !== undefined) {
+      if (!data.title || data.title.trim().length < 3) {
+        throw new BadRequestException("Título muito curto (mínimo 3 caracteres)");
       }
-
-      if (
-        data.title.length >
-        120
-      ) {
-        throw new BadRequestException(
-          "Título muito longo",
-        );
+      if (data.title.length > 120) {
+        throw new BadRequestException("Título muito longo (máximo 120 caracteres)");
       }
     }
 
-    // =========================
-    // ESTIMATED TIME
-    // =========================
-
-    if (
-      data.estimatedTime !==
-        undefined &&
-      data.estimatedTime !==
-        null
-    ) {
-      if (
-        data.estimatedTime <
-          1 ||
-        data.estimatedTime >
-          600
-      ) {
-        throw new BadRequestException(
-          "Tempo estimado inválido (1–600 min)",
-        );
+    if (data.estimatedTime != null) {
+      if (data.estimatedTime < 1 || data.estimatedTime > 600) {
+        throw new BadRequestException("Tempo estimado inválido (1–600 min)");
       }
     }
 
-    // =========================
-    // ENERGY LEVEL
-    // =========================
-
-    if (
-      data.energyLevel !==
-        undefined &&
-      data.energyLevel !==
-        null
-    ) {
-      if (
-        data.energyLevel <
-          1 ||
-        data.energyLevel >
-          5
-      ) {
-        throw new BadRequestException(
-          "Energy level deve ser entre 1 e 5",
-        );
-      }
+    if (data.focusTime != null && data.focusTime < 0) {
+      throw new BadRequestException("Tempo de foco inválido");
     }
 
-    // =========================
-    // DUE DATE
-    // =========================
+    if (data.dueDate && new Date(data.dueDate) < new Date("2020-01-01")) {
+      throw new BadRequestException("Data inválida");
+    }
 
-    if (
-      data.dueDate &&
-      new Date(
-        data.dueDate,
-      ) <
-        new Date(
-          "2020-01-01",
-        )
-    ) {
-      throw new BadRequestException(
-        "Data inválida",
-      );
+    if (data.checklist !== undefined && !Array.isArray(data.checklist)) {
+      throw new BadRequestException("Checklist deve ser um array");
+    }
+
+    if (data.links !== undefined && !Array.isArray(data.links)) {
+      throw new BadRequestException("Links deve ser um array");
     }
   }
 
-  // =========================
+  // ─────────────────────────────────────────────
   // OWNERSHIP CHECK
-  // =========================
+  // ─────────────────────────────────────────────
 
-  private async ensureOwnership(
-    id: string,
-    userId: string,
-  ) {
-    const task =
-      await this.prisma.task.findFirst(
-        {
-          where: {
-            id,
-            userId,
-          },
+  private async ensureOwnership(id: string, userId: string) {
+    const task = await this.prisma.task.findFirst({
+      where: { id, userId },
+      select: { id: true },
+    });
 
-          select: {
-            id: true,
-          },
-        },
-      );
-
-    if (!task) {
-      throw new NotFoundException(
-        "Task não encontrada",
-      );
-    }
+    if (!task) throw new NotFoundException("Task não encontrada");
   }
 }

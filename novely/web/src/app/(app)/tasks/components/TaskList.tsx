@@ -10,6 +10,8 @@ import {
   Pencil,
   Clock,
   AlertTriangle,
+  CheckSquare,
+  Link2,
 } from "lucide-react";
 
 type Props = {
@@ -17,7 +19,7 @@ type Props = {
   onToggle: (task: Task) => void;
   onDelete: (task: Task) => void;
   onEdit: (task: Task) => void;
-  onOpen: (task: Task) => void; // ✅ ADICIONADO
+  onOpen: (task: Task) => void;
 };
 
 function priorityStyle(priority: Task["priority"]) {
@@ -33,7 +35,7 @@ function priorityStyle(priority: Task["priority"]) {
   }
 }
 
-function formatDate(date?: string | null) {
+function formatDate(date?: string | Date | null) {
   if (!date) return null;
   return new Date(date).toLocaleDateString("pt-BR");
 }
@@ -64,22 +66,28 @@ export default function TasksList({
       {tasks.map((task) => {
         const overdue = isOverdue(task);
 
+        // Parse seguro dos arrays JSON armazenados no banco
+        const checklistItems = Array.isArray(task.checklist) ? task.checklist : [];
+        const linkItems = Array.isArray(task.links) ? task.links : [];
+        
+        const completedSubtasks = checklistItems.filter((item: any) => item?.done).length;
+        const totalSubtasks = checklistItems.length;
+
         return (
           <div
             key={task.id}
-            onClick={() => onOpen(task)} // ✅ abre expanded
+            onClick={() => onOpen(task)}
             className={`group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-2xl border border-zinc-800 hover:border-purple-500/40 transition cursor-pointer
-              ${task.status === "DONE" ? "bg-green-500/10" : "bg-zinc-950"}`}
+              ${task.status === "DONE" ? "bg-green-500/5 border-green-500/20 hover:border-green-500/40" : "bg-zinc-950"}`}
           >
             {/* LEFT */}
             <div className="flex items-start gap-3 flex-1 min-w-0">
-              
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onToggle(task);
                 }}
-                className="cursor-pointer"
+                className="cursor-pointer mt-0.5"
               >
                 {task.status === "DONE" ? (
                   <CheckCircle2 size={18} className="text-purple-400" />
@@ -89,10 +97,9 @@ export default function TasksList({
               </button>
 
               <div className="flex flex-col min-w-0 w-full">
-
                 {/* TITLE */}
                 <span
-                  className={`text-sm truncate ${
+                  className={`text-sm font-medium truncate ${
                     task.status === "DONE"
                       ? "line-through text-zinc-500"
                       : "text-zinc-200"
@@ -103,7 +110,6 @@ export default function TasksList({
 
                 {/* META */}
                 <div className="flex flex-wrap gap-2 mt-2">
-
                   {task.priority && (
                     <span
                       className={`text-[10px] px-2 py-[3px] rounded-full border flex items-center gap-1 ${priorityStyle(
@@ -129,20 +135,34 @@ export default function TasksList({
                     </span>
                   )}
 
+                  {/* CONTADOR DE SUBTAREFAS */}
+                  {totalSubtasks > 0 && (
+                    <span className="text-[10px] px-2 py-[3px] rounded-full border border-zinc-700 text-zinc-400 flex items-center gap-1">
+                      <CheckSquare size={10} />
+                      {completedSubtasks}/{totalSubtasks}
+                    </span>
+                  )}
+
+                  {/* CONTADOR DE LINKS */}
+                  {linkItems.length > 0 && (
+                    <span className="text-[10px] px-2 py-[3px] rounded-full border border-zinc-700 text-zinc-400 flex items-center gap-1">
+                      <Link2 size={10} />
+                      {linkItems.length}
+                    </span>
+                  )}
+
                   {overdue && (
                     <span className="text-[10px] px-2 py-[3px] rounded-full border border-red-500/40 text-red-400 flex items-center gap-1">
                       <AlertTriangle size={10} />
                       atrasada
                     </span>
                   )}
-
                 </div>
               </div>
             </div>
 
             {/* ACTIONS */}
-            <div className="flex items-center gap-3 sm:opacity-0 sm:group-hover:opacity-100 transition">
-
+            <div className="flex items-center gap-3 sm:opacity-0 sm:group-hover:opacity-100 transition self-end sm:self-center">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -160,7 +180,6 @@ export default function TasksList({
               >
                 <Trash2 size={16} className="text-zinc-400 hover:text-red-400" />
               </button>
-
             </div>
           </div>
         );

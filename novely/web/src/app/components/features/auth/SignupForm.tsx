@@ -13,65 +13,62 @@ export default function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-
   const handleSignup = async () => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: name ? { name } : undefined,
-    },
-  });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: name ? { name } : undefined,
+      },
+    });
 
-  if (error) return;
+    if (error) return;
 
-  const user = await api.get("/auth/me");
-
-  router.push("/onboarding-form");
-};
-
+    const user = await api.get("/auth/me");
+    router.push("/onboarding-form");
+  };
 
   return (
     <div className="space-y-4">
-
-        <div className="relative flex items-center">
-  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-
-  <input
-    placeholder="Nome"
-    className=" w-full pl-10 pr-3 py-3 border border-purple-400 rounded-xl text-gray-800  placeholder:text-gray-400 focus:outline-none  focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition"
-    value={name}
-    onChange={(e) => setName(e.target.value)}
-  />
-</div>
-
+      {/* INPUT NOME */}
       <div className="relative flex items-center">
-  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+        <input
+          placeholder="Nome"
+          className="w-full pl-10 pr-3 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 placeholder:text-gray-400 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
 
-  <input
-    placeholder="Email"
-    className=" w-full pl-10 pr-3 py-3 border border-purple-400 rounded-xl text-gray-800  placeholder:text-gray-400 focus:outline-none  focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition"
-    value={email}
-    onChange={(e) => setEmail(e.target.value)}
-  />
-</div>
-
+      {/* INPUT EMAIL */}
       <div className="relative flex items-center">
-  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full pl-10 pr-3 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 placeholder:text-gray-400 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
 
-  <input
-    type="password"
-    placeholder="Senha"
-    className=" w-full pl-10 pr-3 py-3 border border-purple-400 rounded-xl text-gray-800  placeholder:text-gray-400 focus:outline-none  focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-  />
-</div>
+      {/* INPUT SENHA */}
+      <div className="relative flex items-center">
+        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+        <input
+          type="password"
+          placeholder="Senha"
+          className="w-full pl-10 pr-3 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 placeholder:text-gray-400 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
 
       {/* BUTTON */}
       <button
         onClick={handleSignup}
-        className="w-full cursor-pointer bg-purple-800 text-white py-3 rounded-xl font-medium hover:bg-purple-900 transition"
+        className="w-full cursor-pointer bg-purple-800 text-white py-3 rounded-xl font-medium hover:bg-purple-900 active:scale-[0.98] transition-all"
       >
         Criar conta
       </button>

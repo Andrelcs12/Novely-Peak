@@ -243,57 +243,32 @@ model Goal {
 // =======================
 
 model Task {
-  id String @id @default(cuid())
+  id            String       @id @default(cuid())
+  title         String
+  description   String?
+  status        TaskStatus   @default(TODO)
+  priority      TaskPriority @default(MEDIUM)
 
-  title       String
-  description String?
+  dueDate       DateTime?
+  completedAt   DateTime?
 
-  status   TaskStatus   @default(TODO)
-  priority TaskPriority @default(MEDIUM)
-
-  dueDate     DateTime?
-  completedAt DateTime?
-
-  // =======================
-  // EXECUÇÃO REAL
-  // =======================
+  // Execução Real & Foco
   estimatedTime Int?
-  actualTime    Int?
   focusTime     Int?
-  energyLevel   Int?
+  
+  // Dados Estruturados em JSON (Leve e Rápido)
+  checklist     Json?        @default("[]")
+  links         Json?        @default("[]")
 
-  // =======================
-  // UI / ORGANIZAÇÃO
-  // =======================
-  position Int?
-  category String?
+  // Relacionamentos
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // =======================
-  // RECORRÊNCIA
-  // =======================
-  isRecurring    Boolean @default(false)
-  recurrenceRule String?
+  goalId        String?
+  goal          Goal?        @relation(fields: [goalId], references: [id], onDelete: SetNull)
 
-  startedAt  DateTime?
-  archivedAt DateTime?
-
-  source String?
-
-  // =======================
-  // IMPACTO NA META
-  // =======================
-  weight Int @default(1)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  linka Link[]
-
-  goalId String?
-  goal   Goal?   @relation(fields: [goalId], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
   @@index([userId])
   @@index([goalId])
@@ -302,7 +277,6 @@ model Task {
   @@index([dueDate])
   @@index([goalId, status])
 }
-
 
 model Link {
   id String @id @default(cuid())
@@ -338,8 +312,6 @@ model Link {
   goalId String?
   goal Goal? @relation(fields: [goalId], references: [id], onDelete: SetNull)
 
-  taskId String?
-  task Task? @relation(fields: [taskId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
