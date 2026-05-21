@@ -1,0 +1,78 @@
+"filename", "language", "JSON", "PostCSS", "TypeScript", "TypeScript JSX", "Prisma", "MS SQL", "comment", "blank", "total"
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\package-lock.json", "JSON", 67, 0, 0, 0, 0, 0, 0, 0, 67
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\package.json", "JSON", 3, 0, 0, 0, 0, 0, 0, 0, 3
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma\migrations\20260509205225_add_user_timezone\migration.sql", "MS SQL", 0, 0, 0, 0, 0, 20, 21, 12, 53
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\prisma\schema.prisma", "Prisma", 0, 0, 0, 0, 53, 0, -8, 30, 75
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\app.module.ts", "TypeScript", 0, 0, 2, 0, 0, 0, 0, 0, 2
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\auth\auth.guard.ts", "TypeScript", 0, 0, 0, 0, 0, 0, 0, 1, 1
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\auth\auth.service.ts", "TypeScript", 0, 0, 28, 0, 0, 0, 4, 8, 40
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\auth\supabase.ts", "TypeScript", 0, 0, -6, 0, 0, 0, 0, -2, -8
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\goals\dto\supabase.ts", "TypeScript", 0, 0, 6, 0, 0, 0, 0, 2, 8
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\goals\goals.controller.ts", "TypeScript", 0, 0, 4, 0, 0, 0, 0, 0, 4
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\goals\goals.service.ts", "TypeScript", 0, 0, 20, 0, 0, 0, 3, 11, 34
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\links\dto\link.dto.ts", "TypeScript", 0, 0, 40, 0, 0, 0, 1, 12, 53
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\links\links.controller.spec.ts", "TypeScript", 0, 0, 16, 0, 0, 0, 0, 5, 21
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\links\links.controller.ts", "TypeScript", 0, 0, 99, 0, 0, 0, 25, 21, 145
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\links\links.module.ts", "TypeScript", 0, 0, 12, 0, 0, 0, 1, 4, 17
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\links\links.service.spec.ts", "TypeScript", 0, 0, 14, 0, 0, 0, 0, 5, 19
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\links\links.service.ts", "TypeScript", 0, 0, 195, 0, 0, 0, 28, 63, 286
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.controller.ts", "TypeScript", 0, 0, 21, 0, 0, 0, 9, 9, 39
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.engine.ts", "TypeScript", 0, 0, 53, 0, 0, 0, 9, 20, 82
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.helpers.ts", "TypeScript", 0, 0, 65, 0, 0, 0, 0, 16, 81
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.module.ts", "TypeScript", 0, 0, 1, 0, 0, 0, 0, 1, 2
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.scheduler.ts", "TypeScript", 0, 0, 94, 0, 0, 0, 4, 23, 121
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.service.ts", "TypeScript", 0, 0, 105, 0, 0, 0, 3, 56, 164
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\streak\streak.types.ts", "TypeScript", 0, 0, 24, 0, 0, 0, 0, 5, 29
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\tasks\tasks.controller.ts", "TypeScript", 0, 0, 4, 0, 0, 0, 0, 0, 4
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\tasks\tasks.module.ts", "TypeScript", 0, 0, 4, 0, 0, 0, 0, -1, 3
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\tasks\tasks.service.ts", "TypeScript", 0, 0, 227, 0, 0, 0, 26, 59, 312
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\user\dto\user.dto.ts", "TypeScript", 0, 0, 10, 0, 0, 0, 0, 3, 13
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\user\user.controller.ts", "TypeScript", 0, 0, 14, 0, 0, 0, 0, 5, 19
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\user\user.module.ts", "TypeScript", 0, 0, 2, 0, 0, 0, 0, 0, 2
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\api\src\modules\user\user.service.ts", "TypeScript", 0, 0, 173, 0, 0, 0, 12, 40, 225
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\package-lock.json", "JSON", 64, 0, 0, 0, 0, 0, 0, 0, 64
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\package.json", "JSON", 1, 0, 0, 0, 0, 0, 0, 0, 1
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\dashboard\components\DashboardGoals.tsx", "TypeScript JSX", 0, 0, 0, -7, 0, 0, -1, -2, -10
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\dashboard\components\DashboardInsight.tsx", "TypeScript JSX", 0, 0, 0, 5, 0, 0, -2, 0, 3
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\dashboard\components\DashboardKPIs.tsx", "TypeScript JSX", 0, 0, 0, -21, 0, 0, -2, -12, -35
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\dashboard\components\DashboardTasks.tsx", "TypeScript JSX", 0, 0, 0, -15, 0, 0, -1, 6, -10
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\dashboard\page.tsx", "TypeScript JSX", 0, 0, 0, -9, 0, 0, 0, -1, -10
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalDetailPanel.tsx", "TypeScript JSX", 0, 0, 0, 93, 0, 0, 6, -4, 95
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalsHistory7d.tsx", "TypeScript JSX", 0, 0, 0, 116, 0, 0, 10, 29, 155
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalsList.tsx", "TypeScript JSX", 0, 0, 0, -16, 0, 0, 2, -10, -24
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalsModal.tsx", "TypeScript JSX", 0, 0, 0, 6, 0, 0, -4, 3, 5
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\components\GoalsSkeleton.tsx", "TypeScript JSX", 0, 0, 0, 23, 0, 0, 5, 6, 34
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\goals\page.tsx", "TypeScript JSX", 0, 0, 0, -1, 0, 0, 16, 1, 16
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\layout.tsx", "TypeScript JSX", 0, 0, 0, 9, 0, 0, 2, 4, 15
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\links\components\LinkCard.tsx", "TypeScript JSX", 0, 0, 0, 165, 0, 0, 0, 39, 204
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\links\components\LinkCreateModal.tsx", "TypeScript JSX", 0, 0, 0, 651, 0, 0, 12, 118, 781
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\links\components\LinksHeader.tsx", "TypeScript JSX", 0, 0, 0, 101, 0, 0, 0, 22, 123
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\links\components\LinksInsights.tsx", "TypeScript JSX", 0, 0, 0, 46, 0, 0, 0, 9, 55
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\links\components\LinksList.tsx", "TypeScript JSX", 0, 0, 0, 44, 0, 0, 0, 8, 52
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\links\components\LinksStats.tsx", "TypeScript JSX", 0, 0, 0, 81, 0, 0, 0, 11, 92
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\links\page.tsx", "TypeScript JSX", 0, 0, 0, 82, 0, 0, 0, 21, 103
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\links\types\link.ts", "TypeScript", 0, 0, 30, 0, 0, 0, 0, 13, 43
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\profile\components\ProfileHeader.tsx", "TypeScript JSX", 0, 0, 0, 100, 0, 0, 6, 14, 120
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\profile\components\ProfileSettings.tsx", "TypeScript JSX", 0, 0, 0, 115, 0, 0, 2, 20, 137
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\profile\components\ProfileStats.tsx", "TypeScript JSX", 0, 0, 0, 47, 0, 0, 0, 9, 56
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\profile\components\ProfileTabs.tsx", "TypeScript JSX", 0, 0, 0, 81, 0, 0, 2, 13, 96
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\profile\components\streak\StreakHeatmap.tsx", "TypeScript JSX", 0, 0, 0, 193, 0, 0, 9, 40, 242
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\profile\page.tsx", "TypeScript JSX", 0, 0, 0, 84, 0, 0, 4, 23, 111
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\profile\types\profile.ts", "TypeScript", 0, 0, 28, 0, 0, 0, 1, 11, 40
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TaskCreateModal.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 1, 1
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TaskList.tsx", "TypeScript JSX", 0, 0, 0, 19, 0, 0, -4, 5, 20
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TasksExpandedPanel.tsx", "TypeScript JSX", 0, 0, 0, 108, 0, 0, 7, 18, 133
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TasksHistory7d.tsx", "TypeScript JSX", 0, 0, 0, 96, 0, 0, 4, 22, 122
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\components\TasksSkeleton.tsx", "TypeScript JSX", 0, 0, 0, 23, 0, 0, 5, 6, 34
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\(app)\tasks\page.tsx", "TypeScript JSX", 0, 0, 0, 37, 0, 0, 9, 3, 49
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\layout\BottomBar.tsx", "TypeScript JSX", 0, 0, 0, 75, 0, 0, 3, 11, 89
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\layout\Header.tsx", "TypeScript JSX", 0, 0, 0, 48, 0, 0, 10, 11, 69
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\components\layout\Sidebar.tsx", "TypeScript JSX", 0, 0, 0, 2, 0, 0, 0, 0, 2
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\globals.css", "PostCSS", 0, 0, 0, 0, 0, 0, 0, 3, 3
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\page.tsx", "TypeScript JSX", 0, 0, 0, 1, 0, 0, 0, 0, 1
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\services\streak\streak.service.ts", "TypeScript", 0, 0, 62, 0, 0, 0, 17, 23, 102
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\services\streak\streak.types.ts", "TypeScript", 0, 0, 9, 0, 0, 0, 1, 2, 12
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\services\streak\useStreak.ts", "TypeScript", 0, 0, 32, 0, 0, 0, 1, 10, 43
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\src\app\types\task.ts", "TypeScript", 0, 0, 1, 0, 0, 0, 1, 2, 4
+"c:\Users\apglu\Desktop\projetos 2026\Novely Peak\novely\web\tailwind.config.ts", "TypeScript", 0, 0, -13, 0, 0, 0, 0, -2, -15
+"Total", "-", 135, 0, 1376, 2382, 53, 20, 259, 914, 5139

@@ -17,6 +17,7 @@ import {
   Settings,
   LogOut,
   LinkIcon,
+  HomeIcon,
 } from "lucide-react";
 
 import { useState } from "react";
