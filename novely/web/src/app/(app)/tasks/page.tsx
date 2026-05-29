@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { api } from "@/lib/api";
 
-import { Task } from "@/app/types/task";
+import { Task, ChecklistItem, TaskLinkItem } from "@/app/types/task";
 
 import TasksHeader from "./components/TaskHeader";
 import TasksStats from "./components/TaskStats";
@@ -28,18 +28,15 @@ export default function TasksPage() {
 
   const [open, setOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-
   const [expandedTask, setExpandedTask] = useState<Task | null>(null);
 
   const [filter, setFilter] = useState<Filter>("ALL");
   const [search, setSearch] = useState("");
-  const [priority, setPriority] = useState<
-    "ALL" | "LOW" | "MEDIUM" | "HIGH"
-  >("ALL");
+  const [priority, setPriority] = useState<"ALL" | "LOW" | "MEDIUM" | "HIGH">("ALL");
 
   const [helpOpen, setHelpOpen] = useState(false);
 
-  // LOAD
+  // LOAD TASKS
   const loadTasks = useCallback(async () => {
     setLoading(true);
     try {
@@ -63,16 +60,20 @@ export default function TasksPage() {
     loadTasks();
   }, [loadTasks]);
 
-  // FILTER
+  // Sincroniza o painel expandido aberto caso a lista principal mude de estado
+  useEffect(() => {
+    if (expandedTask) {
+      const updated = tasks.find((t) => t.id === expandedTask.id);
+      if (updated) setExpandedTask(updated);
+    }
+  }, [tasks, expandedTask]);
+
+  // FILTER & SORT
   const filteredTasks = useMemo(() => {
     return tasks
       .filter((t) => {
-        const matchSearch = t.title
-          .toLowerCase()
-          .includes(search.toLowerCase());
-
-        const matchPriority =
-          priority === "ALL" || t.priority === priority;
+        const matchSearch = t.title.toLowerCase().includes(search.toLowerCase());
+        const matchPriority = priority === "ALL" || t.priority === priority;
 
         if (filter === "ACTIVE" && t.status === "DONE") return false;
         if (filter === "COMPLETED" && t.status !== "DONE") return false;
@@ -85,55 +86,69 @@ export default function TasksPage() {
       });
   }, [tasks, search, priority, filter]);
 
-
+  // TOGGLE STATUS (Otimista)
   const handleToggle = async (task: Task) => {
-  const newStatus: Task["status"] = task.status === "DONE" ? "TODO" : "DONE";
+    const newStatus: Task["status"] = task.status === "DONE" ? "TODO" : "DONE";
 
-  // 1. Atualização Otimista (Local) para resposta instantânea
-  setTasks((prev) =>
-    prev.map((t) =>
-      t.id === task.id 
-        ? { ...t, status: newStatus, completedAt: newStatus === "DONE" ? new Date().toISOString() : null } 
-        : t
-    )
-  );
-
-  try {
-    // 2. Aguarda a atualização do status no servidor
-    await api.patch(`/tasks/${task.id}/status`, {
-      status: newStatus,
-    });
-
-    // 3. Busca o progresso atualizado do dia
-    const progressRes = await api.get("/streak/today");
-    
-    // 🔥 CORREÇÃO AQUI: Verificamos se data existe e extraímos o progress
-    // Se progress não existir na resposta, usamos 0 ou recalculamos
-    const actualData = progressRes.data ?? progressRes;
-    const currentProgress = actualData?.progress ?? 0;
-
-    // 4. Atualizamos o streak no banco com o valor seguro
-    await api.post("/streak/update", {
-      progress: currentProgress,
-    });
-
-    // 5. Notificamos o sistema para atualizar o Header/Fogo
-    window.dispatchEvent(new Event("streak_updated"));
-
-  } catch (error) {
-    console.error("Erro ao atualizar tarefa:", error);
-    
-    // Reverter o estado local caso a API falhe
     setTasks((prev) =>
       prev.map((t) =>
-        t.id === task.id ? { ...t, status: task.status } : t
+        t.id === task.id
+          ? {
+              ...t,
+              status: newStatus,
+              completedAt: newStatus === "DONE" ? new Date().toISOString() : null,
+            }
+          : t
       )
     );
-  }
-};
 
+    try {
+      await api.patch(`/tasks/${task.id}/status`, { status: newStatus });
+
+      const progressRes = await api.get("/streak/today");
+      const actualData = progressRes.data ?? progressRes;
+      const currentProgress = actualData?.progress ?? 0;
+
+      await api.post("/streak/update", { progress: currentProgress });
+      window.dispatchEvent(new Event("streak_updated"));
+    } catch (error) {
+      console.error("Erro ao atualizar tarefa:", error);
+      setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, status: task.status } : t)));
+    }
+  };
+
+  // MUTATE CHECKLIST (Chamado diretamente de dentro do TaskExpandedPanel)
+  const handleUpdateChecklist = async (taskId: string, updatedChecklist: ChecklistItem[]) => {
+    // Atualização local imediata
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, checklist: updatedChecklist } : t))
+    );
+
+    try {
+      await api.patch(`/tasks/${taskId}`, { checklist: updatedChecklist });
+    } catch (error) {
+      console.error("Erro ao salvar checklist:", error);
+      loadTasks(); // Fallback seguro em caso de erro na API
+    }
+  };
+
+  // MUTATE LINKS (Chamado diretamente de dentro do TaskExpandedPanel)
+  const handleUpdateLinks = async (taskId: string, updatedLinks: TaskLinkItem[]) => {
+    // Atualização local imediata
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, links: updatedLinks } : t)));
+
+    try {
+      await api.patch(`/tasks/${taskId}`, { links: updatedLinks });
+    } catch (error) {
+      console.error("Erro ao salvar links:", error);
+      loadTasks();
+    }
+  };
+
+  // DELETE
   const handleDelete = async (task: Task) => {
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
+    if (expandedTask?.id === task.id) setExpandedTask(null);
 
     try {
       await api.delete(`/tasks/${task.id}`);
@@ -160,7 +175,6 @@ export default function TasksPage() {
 
   return (
     <div className="space-y-6 text-white max-w-6xl mx-auto">
-
       <TasksHeader
         onCreate={() => {
           setSelectedTask(null);
@@ -171,7 +185,7 @@ export default function TasksPage() {
         onOpenHelp={() => setHelpOpen(true)}
       />
 
-      {/* PERIOD */}
+      {/* PERIOD FILTERS */}
       <div className="flex gap-2 text-xs">
         {[
           { key: "today", label: "Hoje" },
@@ -181,7 +195,7 @@ export default function TasksPage() {
           <button
             key={p.key}
             onClick={() => setPeriod(p.key as Period)}
-            className={`px-3 py-1 rounded transition ${
+            className={`px-3 py-1 rounded transition font-medium cursor-pointer ${
               period === p.key
                 ? "bg-purple-500 text-white"
                 : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
@@ -195,10 +209,7 @@ export default function TasksPage() {
       <TasksStats tasks={tasks} />
       <TasksAnalytics tasks={tasks} />
 
-      <TasksHelpModal
-        open={helpOpen}
-        onClose={() => setHelpOpen(false)}
-      />
+      <TasksHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
 
       <TasksFilters
         search={search}
@@ -207,31 +218,26 @@ export default function TasksPage() {
         setPriority={setPriority}
       />
 
-      {/* GRID PRINCIPAL */}
+      {/* MAIN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* LISTA */}
+        {/* TASK LIST */}
         <div className="lg:col-span-2">
-         <TasksList
-  tasks={filteredTasks}
-  onToggle={handleToggle}
-  onDelete={handleDelete}
-  onEdit={handleEdit}
-  onOpen={(task) => setExpandedTask(task)}   // 👈 ADD ISSO
-/>
-        </div>
-
-        {/* HISTÓRICO */}
-        <div className="lg:col-span-1">
-          <TasksHistory7d
-            tasks={tasks7d}
+          <TasksList
+            tasks={filteredTasks}
+            onToggle={handleToggle}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
             onOpen={(task) => setExpandedTask(task)}
           />
         </div>
 
+        {/* 7 DAYS HISTORY */}
+        <div className="lg:col-span-1">
+          <TasksHistory7d tasks={tasks7d} onOpen={(task) => setExpandedTask(task)} />
+        </div>
       </div>
 
-      {/* MODAL */}
+      {/* MODAL CREATION/EDITION */}
       <TaskModal
         open={open}
         onClose={handleClose}
@@ -240,12 +246,13 @@ export default function TasksPage() {
         onOpenHelp={() => setHelpOpen(true)}
       />
 
-      {/* EXPANDED PANEL */}
+      {/* EXPANDED SIDE PANEL (ON DEMAND FOR CHECKLISTS & LINKS) */}
       <TaskExpandedPanel
         task={expandedTask}
         onClose={() => setExpandedTask(null)}
+        onUpdateChecklist={handleUpdateChecklist}
+        onUpdateLinks={handleUpdateLinks}
       />
-
     </div>
   );
 }
