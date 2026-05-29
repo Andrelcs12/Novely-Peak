@@ -34,13 +34,7 @@ export class LinksService {
           },
         },
 
-        task: {
-          select: {
-            id: true,
-            title: true,
-            status: true,
-          },
-        },
+        
       },
 
       orderBy: {
@@ -66,7 +60,7 @@ export class LinksService {
 
         include: {
           goal: true,
-          task: true,
+          
         },
       });
 
@@ -121,14 +115,14 @@ export class LinksService {
 
         goalId: dto.goalId,
 
-        taskId: dto.taskId,
+
 
         userId,
       },
 
       include: {
         goal: true,
-        task: true,
+  
       },
     });
   }
@@ -180,12 +174,12 @@ export class LinksService {
 
         goalId: dto.goalId,
 
-        taskId: dto.taskId,
+       
       },
 
       include: {
         goal: true,
-        task: true,
+        
       },
     });
   }

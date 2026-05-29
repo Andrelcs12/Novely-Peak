@@ -32,7 +32,7 @@ export default function LoginForm() {
         <input
           type="email"
           placeholder="Email"
-          className="w-full pl-10 pr-3 py-3 bg-white border border-gray-200 rounded-xl text-gray-800 placeholder:text-gray-400 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all"
+         className="w-full pl-10 pr-3 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 placeholder:text-gray-400 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -44,7 +44,7 @@ export default function LoginForm() {
         <input
           type="password"
           placeholder="Senha"
-          className="w-full pl-10 pr-3 py-3 bg-white border border-gray-200 rounded-xl text-gray-800 placeholder:text-gray-400 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all"
+         className="w-full pl-10 pr-3 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 placeholder:text-gray-400 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />

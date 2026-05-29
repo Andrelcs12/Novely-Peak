@@ -10,7 +10,6 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { GoalsModule } from './modules/goals/goals.module';
-import { StreakModule } from './modules/streak/streak.module';
 import { StreakEventsModule } from './modules/streak-events/streak-events.module';
 import { LinksModule } from './modules/links/links.module';
 @Module({
@@ -34,7 +33,6 @@ import { LinksModule } from './modules/links/links.module';
     UserModule,
     TasksModule,
     GoalsModule,
-    StreakModule,
     StreakEventsModule,
     LinksModule,
   ],

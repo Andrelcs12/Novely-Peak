@@ -10,14 +10,12 @@ import { PrismaService } from "@/prisma.service";
 import { TaskDto } from "./dto/task.dto";
 import { TaskStatus } from "../../../generated/prisma/enums";
 import { GoalsService } from "../goals/goals.service";
-import { StreakService } from "../streak/streak.service";
 
 @Injectable()
 export class TasksService {
   constructor(
     private prisma: PrismaService,
     private goalsService: GoalsService,
-    private streakService: StreakService,
   ) {}
 
   // ─────────────────────────────────────────────
@@ -169,7 +167,6 @@ export class TasksService {
       await this.goalsService.recalcGoalProgress(task.goalId);
     }
 
-    await this.streakService.update(userId);
 
     return task;
   }
