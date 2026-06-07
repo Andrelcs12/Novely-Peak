@@ -58,12 +58,7 @@ export class AuthService {
         },
       });
 
-      // 🔥 cria streak automaticamente
-      await this.prisma.streak.create({
-        data: {
-          userId: dbUser.id,
-        },
-      });
+      
     }
 
     return dbUser;

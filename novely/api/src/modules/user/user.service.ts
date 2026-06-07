@@ -58,52 +58,6 @@ export class UserService {
   // COMPLETE ONBOARDING
   // =========================================
 
-  async completeOnboarding(
-    userId: string,
-    data: CompleteOnboardingDto,
-  ) {
-    const user =
-      await this.prisma.user.findUnique(
-        {
-          where: {
-            id: userId,
-          },
-        },
-      );
-
-    if (!user) {
-      throw new NotFoundException(
-        "Usuário não encontrado",
-      );
-    }
-
-    if (user.onboardingDone) {
-      return user;
-    }
-
-    return this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-
-      data: {
-        goal: data.goal,
-        workStyle:
-          data.workStyle,
-        discipline:
-          data.discipline,
-
-        onboardingIntroDone:
-          true,
-
-        onboardingDone:
-          true,
-
-        onboardingCompletedAt:
-          new Date(),
-      },
-    });
-  }
 
   // =========================================
   // PROFILE
@@ -120,7 +74,7 @@ export class UserService {
           },
 
           include: {
-            streak: true,
+          
 
             tasks: {
               where: {
@@ -128,20 +82,9 @@ export class UserService {
               },
             },
 
-            goals: {
-              where: {
-                status:
-                  "COMPLETED",
-              },
-            },
+            
 
-            streakHistory: {
-              orderBy: {
-                dateKey: "asc",
-              },
-
-              take: 90,
-            },
+          
           },
         },
       );
@@ -155,8 +98,7 @@ export class UserService {
     const completedTasks =
       user.tasks.length;
 
-    const completedGoals =
-      user.goals.length;
+    
 
     return {
       id: user.id,
@@ -175,25 +117,12 @@ export class UserService {
 
       plan: "FREE",
 
-      streak: {
-        current:
-          user.streak
-            ?.current ?? 0,
-
-        best:
-          user.streak?.best ??
-          0,
-
-        status:
-          user.streak
-            ?.status ??
-          "BROKEN",
-      },
+  
 
       stats: {
         completedTasks,
 
-        completedGoals,
+        
 
         productivity:
           completedTasks > 0
@@ -207,28 +136,10 @@ export class UserService {
               )
             : 0,
 
-        activeDays:
-          user.streakHistory
-            .length,
+       
       },
 
-      heatmap:
-        user.streakHistory.map(
-          (item) => ({
-            date:
-              item.dateKey,
-
-            count:
-              item.progress ??
-              0,
-
-            completed:
-              item.completed,
-
-            streakAfter:
-              item.streakAfter,
-          }),
-        ),
+      
     };
   }
 

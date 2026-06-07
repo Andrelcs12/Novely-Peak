@@ -26,16 +26,7 @@ export class LinksService {
         isArchived: false,
       },
 
-      include: {
-        goal: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-
-        
-      },
+      
 
       orderBy: {
         createdAt: "desc",
@@ -58,10 +49,7 @@ export class LinksService {
           userId,
         },
 
-        include: {
-          goal: true,
-          
-        },
+        
       });
 
     if (!link) {
@@ -113,17 +101,14 @@ export class LinksService {
         isArchived:
           dto.isArchived ?? false,
 
-        goalId: dto.goalId,
+        
 
 
 
         userId,
       },
 
-      include: {
-        goal: true,
-  
-      },
+      
     });
   }
 
@@ -172,15 +157,12 @@ export class LinksService {
         isArchived:
           dto.isArchived,
 
-        goalId: dto.goalId,
+        
 
        
       },
 
-      include: {
-        goal: true,
-        
-      },
+     
     });
   }
 

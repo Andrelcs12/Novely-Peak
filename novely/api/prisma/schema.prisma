@@ -1,7 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
   provider = "prisma-client"
@@ -10,25 +6,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-}
-
-enum UserGoal {
-  WORK
-  STUDY
-  PROJECTS
-  LIFE
-}
-
-enum WorkStyle {
-  MINIMAL
-  BALANCED
-  STRUCTURED
-}
-
-enum DisciplineLevel {
-  LOW
-  MEDIUM
-  HIGH
 }
 
 enum TaskPriority {
@@ -56,271 +33,16 @@ enum GoalPriority {
   HIGH
 }
 
-enum RiskLevel {
-  LOW
-  MEDIUM
-  HIGH
-}
-
 enum GoalProgressMode {
   MANUAL
   TASKS
   HYBRID
 }
 
-enum StreakStatus {
-  ACTIVE
-  BROKEN
-  FROZEN
+enum HabitFrequencyType {
+  FIXED_DAYS
+  WEEKLY_COUNT
 }
-
-model User {
-  id       String  @id @default(cuid())
-  email    String  @unique
-  name     String?
-  username String? @unique
-  avatar   String?
-
-  onboardingIntroDone   Boolean   @default(false)
-  onboardingDone        Boolean   @default(false)
-  onboardingCompletedAt DateTime?
-
-  goal       UserGoal?
-  workStyle  WorkStyle?
-  discipline DisciplineLevel?
-
-  bio        String?
-  focusLevel Int?
-
-  timezone String @default("America/Sao_Paulo")
-
-  tasks Task[]
-  goals Goal[]
-  link Link[]
-
-  streak        Streak?
-  streakHistory StreakHistory[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([email])
-  @@index([username])
-  @@index([onboardingDone])
-}
-
-model Streak {
-  id String @id @default(cuid())
-
-  userId String @unique
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  current Int @default(0)
-
-  best Int @default(0)
-
-  frozenDays Int @default(0)
-
-  status StreakStatus @default(ACTIVE)
-
-  lastDateKey String?
-
-  lastUpdatedAt DateTime?
-
-  lastCompletedAt DateTime?
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@index([status])
-  @@index([lastDateKey])
-}
-
-model StreakHistory {
-  id String @id @default(cuid())
-
-  userId String
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  dateKey String
-
-  progress Int
-
-  tasksTotal Int @default(0)
-
-  tasksCompleted Int @default(0)
-
-  completed Boolean @default(false)
-
-  streakAfter Int @default(0)
-
-  status StreakStatus
-
-  createdAt DateTime @default(now())
-
-  @@unique([userId, dateKey])
-
-  @@index([userId])
-  @@index([dateKey])
-  @@index([userId, dateKey])
-}
-// =======================
-// GOAL
-// =======================
-
-model Goal {
-  id String @id @default(cuid())
-
-  title       String
-  description String?
-
-  status   GoalStatus   @default(ACTIVE)
-  priority GoalPriority @default(MEDIUM)
-
-  // =======================
-  // PROGRESSO
-  // =======================
-  progress       Int              @default(0)
-  targetProgress Int              @default(100)
-  progressMode   GoalProgressMode @default(MANUAL)
-
-  // =======================
-  // INTELIGÊNCIA
-  // =======================
-  score       Int? // 0–100 (performance geral)
-  healthScore Int? // qualidade da execução
-  riskLevel   RiskLevel?
-
-  // =======================
-  // CONTEXTO TEMPORAL
-  // =======================
-  dueDate          DateTime?
-  startedAt        DateTime?
-  completedAt      DateTime?
-  lastCalculatedAt DateTime?
-
-  // =======================
-  // CONTEXTO VISUAL
-  // =======================
-  color    String?
-  icon     String?
-  category String?
-
-  // =======================
-  // MOTIVAÇÃO
-  // =======================
-  why String?
-
-  // =======================
-  // FUTURO (PROJECTS / COLLAB)
-  // =======================
-  projectId String?
-
-  archivedAt DateTime?
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  tasks Task[]
-  links Link[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@index([status])
-  @@index([priority])
-  @@index([dueDate])
-  @@index([status, userId])
-}
-
-// =======================
-// TASK
-// =======================
-
-model Task {
-  id            String       @id @default(cuid())
-  title         String
-  description   String?
-  status        TaskStatus   @default(TODO)
-  priority      TaskPriority @default(MEDIUM)
-
-  dueDate       DateTime?
-  completedAt   DateTime?
-
-  // Execução Real & Foco
-  estimatedTime Int?
-  focusTime     Int?
-  
-  // Dados Estruturados em JSON (Leve e Rápido)
-  checklist     Json?        @default("[]")
-  links         Json?        @default("[]")
-
-  // Relacionamentos
-  userId        String
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  goalId        String?
-  goal          Goal?        @relation(fields: [goalId], references: [id], onDelete: SetNull)
-
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-
-  @@index([userId])
-  @@index([goalId])
-  @@index([status])
-  @@index([priority])
-  @@index([dueDate])
-  @@index([goalId, status])
-}
-
-model Link {
-  id String @id @default(cuid())
-
-  title String?
-  description String?
-
-  url String
-
-  domain String?
-  favicon String?
-  image String?
-
-  type LinkType @default(ARTICLE)
-
-  aiSummary String?
-  aiTags String[]
-
-  notes String?
-
-  readingTime Int?
-
-  isFavorite Boolean @default(false)
-  isArchived Boolean @default(false)
-
-  views Int @default(0)
-
-  lastViewedAt DateTime?
-
-  userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  goalId String?
-  goal Goal? @relation(fields: [goalId], references: [id], onDelete: SetNull)
-
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@index([type])
-  @@index([isFavorite])
-}
-
 
 enum LinkType {
   ARTICLE
@@ -331,3 +53,334 @@ enum LinkType {
   GITHUB
   OTHER
 }
+
+enum EnergyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// USER
+
+
+model User {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String?
+  username String? @unique
+  avatar   String?
+
+  onboardingIntroDone Boolean @default(false)
+  timezone String @default("America/Sao_Paulo")
+  tasks          Task[]
+  goals          Goal[]
+  habits         Habit[]
+  links          Link[]
+  linkCategories LinkCategory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([username])
+}
+
+
+model Goal {
+  id          String @id @default(cuid())
+
+  title       String
+  description String?
+
+  status       GoalStatus       @default(ACTIVE)
+  priority     GoalPriority     @default(MEDIUM)
+  progressMode GoalProgressMode @default(TASKS)
+
+  progress Int @default(0)
+
+  targetDate DateTime?
+
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tasks Task[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Task {
+  id          String @id @default(cuid())
+
+  title       String
+  description String?
+
+  status   TaskStatus   @default(TODO)
+  priority TaskPriority @default(MEDIUM)
+
+  energyLevel EnergyLevel @default(MEDIUM)
+
+  position Int @default(0)
+
+  //
+  // Datas
+  //
+
+  dueDate     DateTime?
+  completedAt DateTime?
+
+  //
+  // Foco & Produtividade
+  //
+
+  estimatedTime Int?
+  focusTime     Int?
+
+  //
+  // Metadata flexível
+  //
+
+  links    Json? @default("[]")
+  metadata Json?
+
+  //
+  // Relacionamentos
+  //
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  goalId String?
+  goal   Goal? @relation(fields: [goalId], references: [id], onDelete: SetNull)
+
+  subtasks Subtask[]
+
+  //
+  // Datas
+  //
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([goalId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([position])
+}
+
+//
+// SUBTASKS
+//
+
+model Subtask {
+  id String @id @default(cuid())
+
+  title String
+  done  Boolean @default(false)
+
+  position Int @default(0)
+
+  //
+  // Relacionamentos
+  //
+
+  taskId String
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  //
+  // Datas
+  //
+
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+}
+
+//
+// HABITS
+//
+
+model Habit {
+  id          String @id @default(cuid())
+
+  title       String
+  description String?
+
+  //
+  // Frequência
+  //
+
+  frequencyType HabitFrequencyType @default(FIXED_DAYS)
+
+  // Ex: [1,2,3,4,5]
+  frequencyDays Int[] @default([1, 2, 3, 4, 5, 6, 7])
+
+  // Ex: 3x por semana
+  weeklyTargetCount Int @default(7)
+
+  //
+  // Streak
+  //
+
+  currentStreak Int @default(0)
+  maxStreak     Int @default(0)
+
+  //
+  // Relacionamentos
+  //
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  logs HabitLog[]
+
+  //
+  // Datas
+  //
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+//
+// HABIT LOGS
+//
+
+model HabitLog {
+  id String @id @default(cuid())
+
+  loggedDate DateTime @db.Date
+
+  //
+  // Relacionamentos
+  //
+
+  habitId String
+  habit   Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  //
+  // Datas
+  //
+
+  createdAt DateTime @default(now())
+
+  @@unique([habitId, loggedDate])
+
+  @@index([habitId])
+  @@index([loggedDate])
+}
+
+//
+// LINK CATEGORIES
+//
+
+model LinkCategory {
+  id String @id @default(cuid())
+
+  name  String
+  color String?
+
+  //
+  // Relacionamentos
+  //
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  links Link[]
+
+  //
+  // Datas
+  //
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, name])
+
+  @@index([userId])
+}
+
+//
+// LINKS
+//
+
+model Link {
+  id String @id @default(cuid())
+
+  title       String?
+  description String?
+
+  url String
+
+  //
+  // Preview
+  //
+
+  domain   String?
+  favicon  String?
+  image    String?
+
+  //
+  // Tipo
+  //
+
+  type LinkType @default(ARTICLE)
+
+  //
+  // IA
+  //
+
+  aiSummary String?
+  aiTags    String[]
+
+  //
+  // Conteúdo
+  //
+
+  notes Json? @default("[]")
+
+  readingTime Int?
+
+  //
+  // Organização
+  //
+
+  isFavorite Boolean @default(false)
+  isArchived Boolean @default(false)
+
+  views Int @default(0)
+
+  lastViewedAt DateTime?
+
+  //
+  // Relacionamentos
+  //
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categoryId String?
+  category   LinkCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  //
+  // Datas
+  //
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([categoryId])
+  @@index([type])
+  @@index([isFavorite])
+  @@index([isArchived])
+}
+

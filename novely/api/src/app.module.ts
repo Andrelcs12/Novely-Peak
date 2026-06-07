@@ -9,8 +9,6 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { TasksModule } from './modules/tasks/tasks.module';
-import { GoalsModule } from './modules/goals/goals.module';
-import { StreakEventsModule } from './modules/streak-events/streak-events.module';
 import { LinksModule } from './modules/links/links.module';
 @Module({
   imports: [
@@ -32,8 +30,6 @@ import { LinksModule } from './modules/links/links.module';
     AuthModule,
     UserModule,
     TasksModule,
-    GoalsModule,
-    StreakEventsModule,
     LinksModule,
   ],
 

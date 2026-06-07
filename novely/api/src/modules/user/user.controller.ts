@@ -13,10 +13,7 @@ export class UserController {
     return this.userService.completeOnboardingIntro(req.user.id);
   }
 
-  @Patch("onboarding")
-  async completeOnboarding(@Req() req: any, @Body() body: CompleteOnboardingDto) {
-    return this.userService.completeOnboarding(req.user.id, body);
-  }
+ 
 
 
   @Get("profile")

@@ -9,13 +9,13 @@ import {
 import { PrismaService } from "@/prisma.service";
 import { TaskDto } from "./dto/task.dto";
 import { TaskStatus } from "../../../generated/prisma/enums";
-import { GoalsService } from "../goals/goals.service";
+
 
 @Injectable()
 export class TasksService {
   constructor(
     private prisma: PrismaService,
-    private goalsService: GoalsService,
+
   ) {}
 
   // ─────────────────────────────────────────────
@@ -95,7 +95,6 @@ export class TasksService {
           data.status === TaskStatus.DONE ? (data.completedAt ?? new Date()) : null,
         estimatedTime: data.estimatedTime ?? null,
         focusTime: data.focusTime ?? null,
-        checklist: data.checklist ?? [],
         links: data.links ?? [],
         user: { connect: { id: userId } },
         ...(data.goalId ? { goal: { connect: { id: data.goalId } } } : {}),
@@ -141,9 +140,7 @@ export class TasksService {
       data: updateData,
     });
 
-    if (task.goalId) {
-      await this.goalsService.recalcGoalProgress(task.goalId);
-    }
+  
 
     return task;
   }
@@ -163,9 +160,7 @@ export class TasksService {
       },
     });
 
-    if (task.goalId) {
-      await this.goalsService.recalcGoalProgress(task.goalId);
-    }
+   
 
 
     return task;

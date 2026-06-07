@@ -7,20 +7,24 @@ import OnboardingDots from "./OnboardingDots";
 import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 
+
 const steps = [
   {
-    title: "Defina suas tarefas do dia",
-    description: "Organize o que precisa ser feito e tenha clareza total das suas prioridades.",
+    title: "Planeje seu dia com clareza",
+    description:
+      "Defina suas prioridades e organize suas tarefas para manter o controle da sua rotina.",
     image: "/onboarding/image1.png",
   },
   {
-    title: "Elimine distrações",
-    description: "Mantenha foco no que realmente importa e evite perder tempo com o celular.",
+    title: "Mantenha o foco no essencial",
+    description:
+      "Elimine distrações e concentre sua energia no que realmente faz você evoluir.",
     image: "/onboarding/image2.png",
   },
   {
-    title: "Evolua todos os dias",
-    description: "Acompanhe seu progresso e construa consistência para alcançar seus objetivos.",
+    title: "Construa progresso diariamente",
+    description:
+      "Acompanhe sua evolução, mantenha consistência e alcance seus objetivos um passo de cada vez.",
     image: "/onboarding/image3.png",
   },
 ];

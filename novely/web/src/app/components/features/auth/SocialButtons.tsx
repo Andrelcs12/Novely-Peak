@@ -1,16 +1,27 @@
+
 "use client";
 
-import { supabase } from "@/lib/supabase";
-import { FcGoogle } from "react-icons/fc";
-import { FaApple, FaFacebook } from "react-icons/fa";
 import { motion } from "framer-motion";
+
+import { FcGoogle } from "react-icons/fc";
+
+import {
+  FaApple,
+  FaFacebook,
+} from "react-icons/fa";
+
+import { supabase } from "@/lib/supabase";
+
+import { Button } from "@/components/ui/button";
 
 export default function SocialButtons() {
   const handleGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
+
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo:
+          `${window.location.origin}/auth/callback`,
       },
     });
   };
@@ -19,38 +30,50 @@ export default function SocialButtons() {
     <div className="space-y-3">
 
       {/* GOOGLE */}
-      <motion.button
-        whileTap={{ scale: 0.98 }}
-        onClick={handleGoogle}
-        className="w-full border cursor-pointer border-gray-200 bg-white py-3 rounded-xl flex items-center justify-center gap-3 hover:border-purple-300 hover:bg-purple-50 transition"
-      >
-        <FcGoogle size={22} />
-        <span className="text-sm font-medium text-gray-700">
-          Continuar com Google
-        </span>
-      </motion.button>
+      <motion.div whileTap={{ scale: 0.98 }}>
+        <Button
+          variant="outline"
+          onClick={handleGoogle}
+          className="h-12 w-full cursor-pointer rounded-xl justify-center gap-3 border-gray-200 hover:border-purple-300 hover:bg-purple-50"
+        >
+          <FcGoogle size={22} />
+
+          <span className="text-sm font-medium text-gray-700">
+            Continuar com Google
+          </span>
+        </Button>
+      </motion.div>
 
       {/* FACEBOOK */}
-      <button
+      <Button
         disabled
-        className="w-full border cursor-pointer border-gray-200 bg-white py-3 rounded-xl flex items-center justify-center gap-3 opacity-40 cursor-not-allowed"
+        variant="outline"
+        className="h-12 w-full rounded-xl justify-center gap-3 opacity-40"
       >
-        <FaFacebook size={18} className="text-blue-600" />
+        <FaFacebook
+          size={18}
+          className="text-blue-600"
+        />
+
         <span className="text-sm font-medium text-gray-500">
           Continuar com Facebook
         </span>
-      </button>
+      </Button>
 
       {/* APPLE */}
-      <button
+      <Button
         disabled
-        className="w-full border cursor-pointer border-gray-200 bg-white py-3 rounded-xl flex items-center justify-center gap-3 opacity-40 cursor-not-allowed"
+        variant="outline"
+        className="h-12 w-full rounded-xl justify-center gap-3 opacity-40"
       >
         <FaApple size={18} />
+
         <span className="text-sm font-medium text-gray-500">
           Continuar com Apple
         </span>
-      </button>
+      </Button>
+
     </div>
   );
 }
+

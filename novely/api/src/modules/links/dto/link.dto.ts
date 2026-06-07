@@ -39,9 +39,6 @@ export class LinkDto {
   @IsBoolean()
   isArchived?: boolean;
 
-  @IsOptional()
-  @IsString()
-  goalId?: string;
 
   @IsOptional()
   @IsString()

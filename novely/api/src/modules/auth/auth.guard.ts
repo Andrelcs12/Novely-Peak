@@ -1,10 +1,10 @@
+import { supabase } from "@/supabase/supabase";
 import {
   CanActivate,
   ExecutionContext,
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import { supabase } from "../goals/dto/supabase";
 
 
 @Injectable()
