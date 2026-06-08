@@ -21,14 +21,7 @@ export default function AuthCallback() {
         // 🔥 SEMPRE garante usuário no backend
         const user = await api.get("/auth/me");
 
-        // 🔥 REGRA ÚNICA DE DECISÃO
-        const needsOnboarding =
-          !user.onboardingIntroDone || !user.onboardingDone;
-
-        if (needsOnboarding) {
-          router.replace("/onboarding-form");
-          return;
-        }
+      
 
         router.replace("/dashboard");
       } catch (err) {

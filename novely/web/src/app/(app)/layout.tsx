@@ -2,24 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { User } from "@/app/types/user";
+import Loading from "../components/ui/loading";
 
-import Sidebar from "../components/layout/Sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import AppSidebar from "../components/layout/Sidebar";
 import Header from "../components/layout/Header";
 import BottomBar from "../components/layout/BottomBar";
 import CommandMenu from "../components/layout/CommandMenu";
 
-import { User } from "@/app/types/user";
-import Loading from "../components/ui/loading";
-
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const [openSidebar, setOpenSidebar] = useState(false);
   const [openCommand, setOpenCommand] = useState(false);
 
   useEffect(() => {
@@ -33,7 +27,6 @@ export default function AppLayout({
         setLoading(false);
       }
     };
-
     loadUser();
   }, []);
 
@@ -42,21 +35,14 @@ export default function AppLayout({
   }
 
   return (
-    <div className="flex h-screen bg-zinc-950 text-white overflow-hidden">
+    <SidebarProvider>
+      <AppSidebar user={user} />
 
-      {/* SIDEBAR */}
-      <Sidebar
-        user={user}
-        isOpen={openSidebar}
-        onClose={() => setOpenSidebar(false)}
-      />
-
-      {/* CONTENT */}
-      <div className="flex flex-col flex-1 min-w-0">
+      <SidebarInset className="bg-zinc-950 text-white">
 
         <Header
           user={user}
-          onMenuClick={() => setOpenSidebar(true)}
+          onMenuClick={() => {}}        // mobile não precisa mais — o shadcn cuida
           onOpenCommand={() => setOpenCommand(true)}
         />
 
@@ -64,16 +50,10 @@ export default function AppLayout({
           {children}
         </main>
 
-      </div>
+      </SidebarInset>
 
-      {/* MOBILE NAV */}
       <BottomBar onOpenCommand={() => setOpenCommand(true)} />
-
-      {/* GLOBAL COMMAND MENU */}
-      <CommandMenu
-        open={openCommand}
-        onClose={() => setOpenCommand(false)}
-      />
-    </div>
+      <CommandMenu open={openCommand} onClose={() => setOpenCommand(false)} />
+    </SidebarProvider>
   );
 }

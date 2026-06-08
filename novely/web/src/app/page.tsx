@@ -30,11 +30,7 @@ export default function Home() {
         // 2. busca user via API centralizada
         const user = await api.get("/auth/me");
 
-        // 3. onboarding não feito
-        if (!user.onboardingDone) {
-          router.push("/onboarding-form");
-          return;
-        }
+       
 
         // 4. tudo ok
         router.push("/dashboard");
