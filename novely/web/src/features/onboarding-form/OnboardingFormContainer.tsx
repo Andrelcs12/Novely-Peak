@@ -10,7 +10,7 @@ import StepGoal from "./StepGoal";
 import StepWorkStyle from "./StepWorkStyle";
 import StepDiscipline from "./StepDiscipline";
 import OnboardingProgress from "./OnboardingProgress";
-import { OnboardingData } from "@/app/types/onboarding";
+import { OnboardingData } from "@/types/onboarding";
 
 export default function OnboardingFormContainer() {
   const router = useRouter();

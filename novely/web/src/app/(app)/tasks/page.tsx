@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { api } from "@/lib/api";
 
-import { Task, ChecklistItem, TaskLinkItem } from "@/app/types/task";
+import { Task, ChecklistItem, TaskLinkItem } from "@/types/task";
 
 import TasksHeader from "./components/TaskHeader";
 import TasksStats from "./components/TaskStats";

@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { api } from "@/lib/api";
 
-import { Goal, GoalPriorityFilter, GoalStatusFilter } from "@/app/types/goal";
+import { Goal, GoalPriorityFilter, GoalStatusFilter } from "@/types/goal";
 
 import GoalsHeader from "./components/GoalsHeader";
 import GoalsStats from "./components/GoalsStats";

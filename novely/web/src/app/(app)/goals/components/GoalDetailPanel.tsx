@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
-import { Goal, GoalTask, TaskStatus } from "@/app/types/goal";
+import { Goal, GoalTask, TaskStatus } from "@/types/goal";
 
 // ─── Helpers de métricas ──────────────────────────────────────────────────────
 

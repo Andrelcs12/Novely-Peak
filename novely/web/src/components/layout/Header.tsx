@@ -1,7 +1,7 @@
 "use client";
 
 import { Menu, Bell, Flame } from "lucide-react";
-import { User } from "@/app/types/user";
+import { User } from "@/types/user";
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 

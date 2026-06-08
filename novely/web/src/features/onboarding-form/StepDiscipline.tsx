@@ -1,5 +1,5 @@
 import { Flame } from "lucide-react";
-import { StepProps } from "@/app/types/onboarding";
+import { StepProps } from "@/types/onboarding";
 
 export default function StepDiscipline({ data, updateData }: StepProps) {
   const options = [

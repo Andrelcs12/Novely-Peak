@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Task, ChecklistItem, TaskLinkItem } from "@/app/types/task";
+import { Task, ChecklistItem, TaskLinkItem } from "@/types/task";
 import {
   X,
   CheckCircle2,

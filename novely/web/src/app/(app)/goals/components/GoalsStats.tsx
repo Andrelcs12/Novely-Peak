@@ -1,13 +1,13 @@
 "use client";
 
-import StatCard from "@/app/components/ui/StatCard";
+import StatCard from "@/components/ui/StatCard";
 import {
   Target,
   CheckCircle2,
   TrendingUp,
   AlertTriangle,
 } from "lucide-react";
-import { Goal } from "@/app/types/goal";
+import { Goal } from "@/types/goal";
 
 type Props = {
   goals: Goal[];

@@ -2,7 +2,7 @@
 
 import { Target, ArrowRight, CheckCircle2, Circle } from "lucide-react";
 import Link from "next/link";
-import { Goal } from "@/app/types/goal";
+import { Goal } from "@/types/goal";
 
 export default function DashboardGoals({
   goals,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Goal } from "@/app/types/goal";
+import { Goal } from "@/types/goal";
 import {
   CheckCircle2, Circle, Trash2, Calendar, Flag,
   Pencil, AlertTriangle, Brain, Activity, Target, ExternalLink,

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { api } from "@/lib/api";
-import Loading from "./components/ui/loading";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -44,7 +44,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex items-center justify-center text-zinc-800">
-      <Loading text="Carregando Informações" />
+      <LoadingSpinner text="Carregando Informações" />
     </div>
   );
 }

@@ -11,7 +11,7 @@ import {
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
-import { Task } from "@/app/types/task";
+import { Task } from "@/types/task";
 
 export default function DashboardTasks({
   tasks,
@@ -194,12 +194,7 @@ const handleComplete = async (id: string) => {
                       </span>
                     )}
 
-                    {task.category && (
-                      <span className="flex gap-1">
-                        <Tag size={12} />
-                        {task.category}
-                      </span>
-                    )}
+                   
                   </div>
                 </div>
 

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { GoalFormState } from "@/app/types/goal";
+import { GoalFormState } from "@/types/goal";
 
 type Task = GoalFormState["tasks"][number];
 

@@ -1,3 +1,4 @@
+// src/components/ui/loading-spinner.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -7,7 +8,7 @@ type Props = {
   text?: string;
 };
 
-export default function Loading({ fullScreen = false, text }: Props) {
+export function LoadingSpinner({ fullScreen = false, text }: Props) {
   return (
     <div
       className={`flex flex-col items-center justify-center gap-4 ${
@@ -15,11 +16,7 @@ export default function Loading({ fullScreen = false, text }: Props) {
       }`}
     >
       <div className="relative flex items-center justify-center">
-
-        {/* Ping */}
         <span className="absolute inline-flex h-12 w-12 rounded-full bg-indigo-500 opacity-20 animate-ping" />
-
-        {/* Spinner */}
         <motion.div
           className="h-12 w-12 rounded-full border-4 border-zinc-700 border-t-indigo-500"
           animate={{ rotate: 360 }}
@@ -30,10 +27,7 @@ export default function Loading({ fullScreen = false, text }: Props) {
           }}
         />
       </div>
-
-      {text && (
-        <p className="text-sm text-zinc-400">{text}</p>
-      )}
+      {text && <p className="text-sm text-zinc-400">{text}</p>}
     </div>
   );
 }

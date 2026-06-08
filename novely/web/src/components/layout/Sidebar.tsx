@@ -7,7 +7,7 @@ import {
   User as UserIcon, UserPlus, Settings, LogOut,
   Crown, User2, MoreHorizontal, Pencil, Trash2,
 } from "lucide-react";
-import { User } from "@/app/types/user";
+import { User } from "@/types/user";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup,
   SidebarGroupContent, SidebarHeader,

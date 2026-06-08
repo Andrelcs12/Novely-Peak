@@ -1,5 +1,5 @@
 import { Zap } from "lucide-react";
-import { StepProps } from "@/app/types/onboarding";
+import { StepProps } from "@/types/onboarding";
 
 export default function StepWorkStyle({ data, updateData }: StepProps) {
 

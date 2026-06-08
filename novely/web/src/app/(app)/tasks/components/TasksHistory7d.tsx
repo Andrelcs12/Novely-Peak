@@ -1,6 +1,6 @@
 "use client";
 
-import { Task } from "@/app/types/task";
+import { Task } from "@/types/task";
 import { CheckCircle2, Calendar, Timer } from "lucide-react";
 
 type Props = {

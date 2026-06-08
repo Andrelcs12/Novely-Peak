@@ -8,11 +8,11 @@ import DashboardTasks from "./components/DashboardTasks";
 import DashboardGoals from "./components/DashboardGoals";
 import DashboardInsight from "./components/DashboardInsight";
 
-import { Task } from "@/app/types/task";
-import { Goal } from "@/app/types/goal";
+import { Task } from "@/types/task";
+import { Goal } from "@/types/goal";
 
 import { CheckCircle2 } from "lucide-react";
-import StatCard from "@/app/components/ui/StatCard";
+import StatCard from "@/components/ui/StatCard";
 
 type TodayState = {
   started: boolean;

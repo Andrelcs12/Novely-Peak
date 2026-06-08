@@ -9,7 +9,7 @@ import {
   Target,
 } from "lucide-react";
 
-import StatCard from "@/app/components/ui/StatCard";
+import StatCard from "@/components/ui/StatCard";
 
 import { ProfileData } from "../types/profile";
 

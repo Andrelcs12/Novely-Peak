@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import StatCard from "@/app/components/ui/StatCard";
+import StatCard from "@/components/ui/StatCard";
 import {
   CheckCircle2,
   ListTodo,
@@ -12,7 +12,7 @@ import {
   Clock,
   Flame,
 } from "lucide-react";
-import { Task } from "@/app/types/task";
+import { Task } from "@/types/task";
 
 type Props = {
   tasks: Task[];

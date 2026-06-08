@@ -1,4 +1,5 @@
-import { DisciplineLevel, UserGoal, WorkStyle } from "@/app/types/onboarding";
+import { DisciplineLevel, UserGoal, WorkStyle } from "@/types/onboarding";
+
 
 
 function formatGoal(goal: UserGoal | null | undefined) {

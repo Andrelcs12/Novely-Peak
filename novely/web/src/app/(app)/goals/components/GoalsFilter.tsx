@@ -3,7 +3,7 @@
 import {
   GoalPriorityFilter,
   GoalStatusFilter,
-} from "@/app/types/goal";
+} from "@/types/goal";
 import { Search, Flag, ListChecks } from "lucide-react";
 
 type Props = {

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
-import { Task, ChecklistItem, TaskLinkItem } from "@/app/types/task";
+import { Task, ChecklistItem, TaskLinkItem } from "@/types/task";
 import TaskModalForm from "./TaskModalForm";
 
 type Props = {

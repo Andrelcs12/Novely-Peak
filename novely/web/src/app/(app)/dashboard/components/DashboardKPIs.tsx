@@ -1,6 +1,6 @@
 "use client";
 
-import StatCard from "@/app/components/ui/StatCard";
+import StatCard from "@/components/ui/StatCard";
 import { CheckSquare, Target, Zap, CheckCircle2 } from "lucide-react";
 
 type Props = {

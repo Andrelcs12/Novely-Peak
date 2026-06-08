@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Task } from "@/app/types/task";
+import { Task } from "@/types/task";
 import {
   PieChart,
   Pie,

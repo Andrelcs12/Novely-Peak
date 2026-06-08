@@ -20,7 +20,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TaskStatus, TaskPriority, ChecklistItem, TaskLinkItem } from "@/app/types/task";
+import { TaskStatus, TaskPriority, ChecklistItem, TaskLinkItem } from "@/types/task";
 
 type Props = {
   title: string;

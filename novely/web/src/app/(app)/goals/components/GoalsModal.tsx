@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { X, Loader2, HelpCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Goal, GoalFormState } from "@/app/types/goal";
+import { Goal, GoalFormState } from "@/types/goal";
 import { api } from "@/lib/api";
 
 import GoalFormFields from "./GoalFormFields";

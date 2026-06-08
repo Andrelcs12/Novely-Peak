@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { User } from "@/app/types/user";
-import Loading from "../components/ui/loading";
+
 
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import AppSidebar from "../components/layout/Sidebar";
-import Header from "../components/layout/Header";
-import BottomBar from "../components/layout/BottomBar";
-import CommandMenu from "../components/layout/CommandMenu";
+import AppSidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
+import BottomBar from "../../components/layout/BottomBar";
+import CommandMenu from "../../components/layout/CommandMenu";
+import { User } from "../../types/user";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -31,7 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   if (loading || !user) {
-    return <Loading fullScreen text="Carregando Informações..." />;
+    return <LoadingSpinner fullScreen text="Carregando Informações..." />;
   }
 
   return (
