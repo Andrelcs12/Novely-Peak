@@ -15,6 +15,8 @@ import TasksAnalytics from "./components/TasksAnalytics";
 import TasksSkeleton from "./components/TasksSkeleton";
 import TasksHistory7d from "./components/TasksHistory7d";
 import TaskExpandedPanel from "./components/TasksExpandedPanel";
+import Empty from "@/components/ui/empty";
+import { CircleHelp, Plus } from "lucide-react";
 
 type Filter = "ALL" | "ACTIVE" | "COMPLETED";
 type Period = "today" | "7d" | "all";
@@ -171,10 +173,41 @@ export default function TasksPage() {
     loadTasks();
   };
 
+  const isEmpty = !loading && tasks.length === 0;
+
+
   if (loading) return <TasksSkeleton />;
 
+  
+
   return (
-    <div className="space-y-6 text-white max-w-6xl mx-auto">
+    <>
+     
+     { isEmpty ? (
+       <Empty
+      image="/empty/task-empty.svg"
+      title="Nenhuma tarefa criada"
+      description="Crie sua primeira tarefa e comece a organizar seu dia."
+      actions={[
+        {
+          label: "Saber mais",
+          icon: <CircleHelp size={18} />,
+          onClick: () => setHelpOpen(true),
+          variant: "secondary",
+        },
+        {
+          label: "Criar tarefa",
+          icon: <Plus size={18} />,
+          onClick: () => {
+            setSelectedTask(null);
+            setOpen(true);
+          },
+        },
+      ]}
+    />
+    ) : (
+
+     <div className="space-y-6 text-white max-w-6xl mx-auto">
       <TasksHeader
         onCreate={() => {
           setSelectedTask(null);
@@ -208,8 +241,7 @@ export default function TasksPage() {
 
       <TasksStats tasks={tasks} />
       <TasksAnalytics tasks={tasks} />
-
-      <TasksHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
+ 
 
       <TasksFilters
         search={search}
@@ -237,7 +269,12 @@ export default function TasksPage() {
         </div>
       </div>
 
-      {/* MODAL CREATION/EDITION */}
+      
+    </div>
+    )
+  }
+
+  {/* MODAL CREATION/EDITION */}
       <TaskModal
         open={open}
         onClose={handleClose}
@@ -253,6 +290,14 @@ export default function TasksPage() {
         onUpdateChecklist={handleUpdateChecklist}
         onUpdateLinks={handleUpdateLinks}
       />
-    </div>
-  );
+
+      
+      <TasksHelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
+
+    </>
+  )
 }
+
+  
+      
+   

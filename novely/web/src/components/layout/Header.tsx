@@ -113,7 +113,7 @@ export default function Header({ user, actions, onOpenCommand }: Props) {
 
   return (
     <>
-      <header className="h-14 md:h-16 border-b border-purple-500/20 bg-zinc-950 flex items-center justify-between px-4 md:px-6">
+      <header className="h-14 md:h-16 border-b border-border bg-zinc-950 flex items-center justify-between px-4 md:px-6">
 
         {/* LEFT */}
         <div className="flex items-center gap-4">

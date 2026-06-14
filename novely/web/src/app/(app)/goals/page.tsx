@@ -15,6 +15,8 @@ import GoalsHelpModal from "./components/GoalsHelpModal";
 import GoalExpanded from "./components/GoalDetailPanel";
 import GoalsHistory7d from "./components/GoalsHistory7d";
 import GoalsSkeleton from "./components/GoalsSkeleton";
+import Empty from "@/components/ui/empty";
+import { Plus, Target } from "lucide-react";
 
 type Period = "today" | "week" | "all";
 
@@ -121,6 +123,32 @@ export default function GoalsPage() {
   // LOADING
   // =========================
   if (loading) return <GoalsSkeleton />;
+
+  if (!loading && goals.length === 0) {
+  return (
+    <Empty
+      image="/empty/goals-empty.svg"
+      title="Nenhuma meta encontrada"
+      description="Defina objetivos e acompanhe seu progresso ao longo do tempo."
+      actions={[
+        {
+          label: "Entender metas",
+          icon: <Target size={18} />,
+          onClick: () => setHelpOpen(true),
+          variant: "secondary",
+        },
+        {
+          label: "Criar meta",
+          icon: <Plus size={18} />,
+          onClick: () => {
+            setSelectedGoal(null);
+            setOpen(true);
+          },
+        },
+      ]}
+    />
+  );
+}
 
   // =========================
   // RENDER
