@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { LinksModule } from './modules/links/links.module';
+import { SpotifyModule } from './modules/spotify/spotify.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -31,6 +32,7 @@ import { LinksModule } from './modules/links/links.module';
     UserModule,
     TasksModule,
     LinksModule,
+    SpotifyModule,
   ],
 
   controllers: [AppController],

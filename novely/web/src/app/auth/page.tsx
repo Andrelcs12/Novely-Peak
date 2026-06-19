@@ -1,6 +1,7 @@
 "use client";
 
-import AuthContainer from "@/app/components/features/auth/AuthContainer";
+import AuthContainer from "@/features/auth/AuthContainer";
+
 
 
 

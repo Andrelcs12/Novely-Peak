@@ -6,6 +6,7 @@ import {
   LayoutDashboard, CheckSquare, Target, LinkIcon,
   User as UserIcon, UserPlus, Settings, LogOut,
   Crown, User2, MoreHorizontal, Pencil, Trash2,
+  Music,
 } from "lucide-react";
 import { User } from "@/types/user";
 import {
@@ -27,7 +28,10 @@ const NAV_ITEMS = [
   { label: "Tarefas", href: "/tasks",     icon: CheckSquare     },
   { label: "Metas",   href: "/goals",     icon: Target          },
   { label: "Links",   href: "/links",     icon: LinkIcon        },
+  { label: "Spotify", href: "/music", icon: Music },
   { label: "Perfil",  href: "/profile",   icon: UserIcon        },
+  
+
 ];
 
 const SETTINGS_ITEMS = [

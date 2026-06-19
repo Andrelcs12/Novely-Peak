@@ -60,6 +60,9 @@ export class TasksService {
         { dueDate: "asc" },
         { createdAt: "desc" },
       ],
+      // coluna "links" ainda não existe no banco (schema drift) —
+      // omitida até a migration ser aplicada
+      omit: { links: true },
     });
   }
 
@@ -70,6 +73,7 @@ export class TasksService {
   async findOne(id: string, userId: string) {
     const task = await this.prisma.task.findFirst({
       where: { id, userId },
+      omit: { links: true },
     });
 
     if (!task) throw new NotFoundException("Task não encontrada");
@@ -95,10 +99,12 @@ export class TasksService {
           data.status === TaskStatus.DONE ? (data.completedAt ?? new Date()) : null,
         estimatedTime: data.estimatedTime ?? null,
         focusTime: data.focusTime ?? null,
-        links: data.links ?? [],
+        // "links" removido do payload de escrita — coluna não existe
+        // no banco ainda (ver schema drift no findAll)
         user: { connect: { id: userId } },
         ...(data.goalId ? { goal: { connect: { id: data.goalId } } } : {}),
       },
+      omit: { links: true },
     });
   }
 
@@ -120,11 +126,13 @@ export class TasksService {
     if (data.dueDate !== undefined) updateData.dueDate = data.dueDate;
     if (data.estimatedTime !== undefined) updateData.estimatedTime = data.estimatedTime;
     if (data.focusTime !== undefined) updateData.focusTime = data.focusTime;
-    if (data.checklist !== undefined) updateData.checklist = data.checklist;
-    if (data.links !== undefined) updateData.links = data.links;
     if (data.goalId !== undefined) {
       updateData.goalId = data.goalId;
     }
+    // "checklist" removido — esse campo não existe no model Task
+    // (não é drift, nunca existiu nesse model; provável confusão
+    // com o model Subtask, que é uma tabela separada)
+    // "links" removido — mesma razão do create/findAll
 
     // Status via update (ex: edição no modal)
     if (data.status !== undefined) {
@@ -138,9 +146,8 @@ export class TasksService {
     const task = await this.prisma.task.update({
       where: { id },
       data: updateData,
+      omit: { links: true },
     });
-
-  
 
     return task;
   }
@@ -158,10 +165,8 @@ export class TasksService {
         status,
         completedAt: status === TaskStatus.DONE ? new Date() : null,
       },
+      omit: { links: true },
     });
-
-   
-
 
     return task;
   }
@@ -173,7 +178,10 @@ export class TasksService {
   async remove(id: string, userId: string) {
     await this.ensureOwnership(id, userId);
 
-    return this.prisma.task.delete({ where: { id } });
+    return this.prisma.task.delete({
+      where: { id },
+      omit: { links: true },
+    });
   }
 
   // ─────────────────────────────────────────────
