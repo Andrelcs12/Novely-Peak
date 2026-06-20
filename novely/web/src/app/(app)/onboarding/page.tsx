@@ -1,6 +1,6 @@
 // /app/(public)/onboarding/page.tsx
 
-import OnboardingContainer from "@/components/features/onboarding/OnboardingContainer";
+import OnboardingContainer from "@/features/onboarding/OnboardingContainer";
 
 
 export default function OnboardingPage() {

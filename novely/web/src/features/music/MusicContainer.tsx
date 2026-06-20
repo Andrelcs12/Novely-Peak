@@ -1,40 +1,26 @@
 "use client";
 
-import { LogIn } from "lucide-react";
-import Empty from "@/components/ui/empty";
-import { supabase } from "@/lib/supabase";
+import MusicLogin from "./MusicLogin";
+import MusicConnected from "./MusicConnected";
+import { useSpotify } from "./hooks/useSpotify";
 
 export default function MusicContainer() {
-  const conectarSpotify = async () => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const token = sessionData.session?.access_token;
+  // "token" não existe mais — agora useSpotify expõe appToken,
+  // spotifyAccessToken e connected separadamente. O que importa aqui
+  // é só saber se a conta Spotify tá conectada ou não.
+  const { connected, loading } = useSpotify();
 
-    if (!token) {
-      console.error("Usuário não autenticado");
-      return;
-    }
-
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/spotify/login`,
-      { headers: { Authorization: `Bearer ${token}` } }
+  if (loading) {
+    return (
+      <div className="p-4 text-sm text-zinc-400">
+        Carregando música...
+      </div>
     );
+  }
 
-    const data = await response.json();
-    window.location.href = data.url;
-  };
+  if (!connected) {
+    return <MusicLogin />;
+  }
 
-  return (
-    <Empty
-      image="/music/spotify.svg"
-      title="Música para foco"
-      description="Conecte sua conta Spotify para acessar músicas e playlists."
-      actions={[
-        {
-          label: "Conectar Spotify",
-          onClick: conectarSpotify,
-          icon: <LogIn size={16} />,
-        },
-      ]}
-    />
-  );
+  return <MusicConnected />;
 }

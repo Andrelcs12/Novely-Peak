@@ -21,12 +21,12 @@ export class SpotifyController {
     @Query("state") state: string,
     @Res() reply: FastifyReply,
   ) {
-    const result = await this.spotifyService.callback(
-      code,
-      state,
-    );
-
-    return reply.redirect(result.redirect);
+    try {
+      const result = await this.spotifyService.callback(code, state);
+      return reply.redirect(result.redirect);
+    } catch (e) {
+      return reply.redirect(`${process.env.FRONTEND_URL}/music?error=spotify`);
+    }
   }
 
   @Get("me")
@@ -35,5 +35,23 @@ export class SpotifyController {
     return this.spotifyService.getMySpotify(
       req.user.id,
     );
+  }
+
+  @Get("profile")
+@UseGuards(AuthGuard)
+profile(@Req() req: any) {
+  return this.spotifyService.getProfile(req.user.id);
+}
+
+@Get("profile/extended")
+@UseGuards(AuthGuard)
+extended(@Req() req: any) {
+  return this.spotifyService.getExtendedProfile(req.user.id);
+}
+  // NOVO
+  @Get("playlists")
+  @UseGuards(AuthGuard)
+  playlists(@Req() req: any) {
+    return this.spotifyService.getPlaylists(req.user.id);
   }
 }
